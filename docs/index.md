@@ -139,7 +139,19 @@ HPC 提供的超高性能，使得它在很多领域都有着广泛的应用。�
 - [《Programming Massively Parallel Processors: A Hands-on Approach, 4th Edition》](https://zh.singlelogin.re/book/25394855/1ffed7/programming-massively-parallel-processors-a-handson-approach-4th-edition.html)
     - CUDA 编程目前仍在活跃发展中，因此没有合适的中文书籍。要想学习到最新的 CUDA 技术，只能看英文书籍，而且要看最新版，超过 5 年的书籍均可能过时。
 
-### 参考资料
+## 贡献
 
-- [IBM：什么是 HPC？高性能计算简介](https://www.ibm.com/cn-zh/topics/hpc)
-- [Introduction to HPC: What are HPC & HPC Clusters?](https://www.weka.io/learn/hpc/what-are-hpc-and-hpc-clusters/)
+课程实验文件夹布局如下：
+
+```text
+Lab0-Example
+├── index.md：实验文档
+├── image：实验相关图片
+└── code：实验基础代码等
+```
+
+图片请使用 `.webp` 格式，它能够显著减小图片体积。你可以使用下面的命令批量转换图片格式：
+
+```bash
+find . -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) -exec sh -c 'cwebp "$1" -o "${1%.*}.webp" && rm "$1"' _ {} \;
+```

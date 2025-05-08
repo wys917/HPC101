@@ -1,8 +1,3 @@
----
-tags:
-  - stable
----
-
 # 登录集群
 
 ## 配置 SSH 密钥登录
@@ -44,8 +39,8 @@ tags:
 !!! warning
 
     注意部分 ssh 实现，如 `mobaxterm`、`xshell` 部分版本默认会在建立连接时检测服务器 ssh 版本，会造成 3s 的等待时间。
-    
-    你可以在这些软件的选项里找到关于协商 ssh 版本的选项，并指定为 SSHv2，以消除等待时间。  
+
+    你可以在这些软件的选项里找到关于协商 ssh 版本的选项，并指定为 SSHv2，以消除等待时间。
 
 !!! tip
 
@@ -56,7 +51,7 @@ tags:
         User student+hpc101
         HostName clusters.zju.edu.cn
         Port 443
-    ```  
+    ```
 
     此后可以使用
 
@@ -111,7 +106,7 @@ tags:
 集群目前使用 [OpenNG](https://github.com/mrhaoxx/OpenNG) 提供的 SSH 代理功能，原理如下图所示：
 
 <figure markdown="span">
-<center>![ssh](index.assets/ssh.png)</center>
+<center>![ssh](index.assets/ssh.webp)</center>
 <figcaption>集群 SSH 代理登录原理</figcaption>
 </figure>
 
@@ -134,7 +129,7 @@ OpenNG 通过 TCP 头识别 SSH 连接，进行接管，详见 [:simple-github: 
         <figure markdown="span">
         <center>
         ![x11_arch](index.assets/x11_arch.webp)
-        </center><figcaption>  
+        </center><figcaption>
         X 视窗系统架构
         <br /><small>
         [MakeTechEasier](https://www.maketecheasier.com/the-x-window-system/)
@@ -151,7 +146,7 @@ OpenNG 通过 TCP 头识别 SSH 连接，进行接管，详见 [:simple-github: 
     <figure markdown="span">
     <center>
     ![x11_forwarding](index.assets/x11_forwarding.webp){ width=80% align=center }
-    </center><figcaption>  
+    </center><figcaption>
     X11 Forwarding 原理
     <br /><small>
     [Teleport](https://goteleport.com/blog/x11-forwarding/)
@@ -201,8 +196,8 @@ user@machine:~$ vtune-gui
 
 <figure markdown="span">
   <center>
-    ![x11_success](index.assets/x11_success.png){ width=80% align=center }
-  </center><figcaption>  
+    ![x11_success](index.assets/x11_success.webp){ width=80% align=center }
+  </center><figcaption>
     X11 Forwarding 成功
   </figcaption>
 </figure>

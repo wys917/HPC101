@@ -9,6 +9,7 @@ site_author: ZJUSCT
 copyright: ZJUSCT
 
 nav:
+  # 已启用 include_dir_to_nav 插件，可使用目录名导航
   - 课程信息:
     - index.md
     - 使用集群: guide
@@ -17,7 +18,7 @@ nav:
 theme:
   name: material
   logo: assets/zjusct.svg
-  favicon: assets/zjusct.png
+  favicon: assets/zjusct.webp
   palette:
     - media: "(prefers-color-scheme)"
       primary: pink

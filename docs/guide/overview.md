@@ -1,15 +1,4 @@
----
-tags:
-  - help
----
-
 # 集群概况
-
-
-<figure markdown="span">
-  <center>![cluster](overview.assets/cluster.png){ width=80% align=center }</center>
-  <figcaption>集群概况</figcaption>
-</figure>
 
 目前集群硬件资源如下：
 
@@ -61,10 +50,10 @@ tags:
 │   │   ├── data        数据
 │   │   ├── code        代码
 │   │   └── ...
-│   └── ... 
+│   └── ...
 └── ...
 /lake
-└── ...         暂未整理    
+└── ...         暂未整理
 /ocean
 └── mirror
     ├── debian-cd       Debian 镜像（同步自 tuna）
@@ -110,6 +99,6 @@ The document has moved
 ```
 
 <figure markdown="span">
-  <center>![proxy](overview.assets/proxy.png){ width=80% align=center }</center>
+  <center>![proxy](overview.assets/proxy.webp){ width=80% align=center }</center>
   <figcaption>常见应用对环境变量代理的支持</figcaption>
 </figure>

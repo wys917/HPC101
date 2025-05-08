@@ -1,19 +1,14 @@
----
-tags:
-  - stable
----
+# 使用在线测评
 
-# 使用在线测评  
-
-我们使用基于 SSH 协议的在线测评系统。登陆方式与登陆集群的方式相同。  
+我们使用基于 SSH 协议的在线测评系统。登陆方式与登陆集群的方式相同。
 
 !!! warning
 
     在继续之前，请确认你已经可以成功[登陆集群](./index.md)。
 
-## 通过 SSH 连接到评测系统  
+## 通过 SSH 连接到评测系统
 
-在线评测系统的节点名为 `oj`。例如，可以使用  
+在线评测系统的节点名为 `oj`。例如，可以使用
 
 ```shell
 ssh student+oj@clusters.zju.edu.cn -p 443
@@ -30,7 +25,7 @@ ssh student+oj@clusters.zju.edu.cn -p 443
         User student+oj
         HostName clusters.zju.edu.cn
         Port 443
-    ```  
+    ```
 
     以下所有例子都假设你已经修改了 SSH 配置文件。
 
@@ -85,7 +80,7 @@ scp /path/to/local/file oj:hello/world.cpp
 
     OpenSSH 版本 `<8.7` 时 `scp` 不支持 sftp 协议，无法使用 `scp` 进行上传，请使用 `sftp` 命令，具体用法请自行查询。
 
-    OpenSSH 版本 `>=8.7 && <9.0` 时 `scp` 支持 sftp 协议，但没有默认启用，请添加选项 `-s`，如:  
+    OpenSSH 版本 `>=8.7 && <9.0` 时 `scp` 支持 sftp 协议，但没有默认启用，请添加选项 `-s`，如:
 
     ```shell
     scp -s /path/to/local/file oj:hello/world.cpp
