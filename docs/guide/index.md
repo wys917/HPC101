@@ -2,7 +2,7 @@
 
 ## 配置 SSH 密钥登录
 
-目前集群仅支持 SSH 密钥登录。请按照以下步骤配置 SSH 密钥登录：
+集群仅会支持 SSH 密钥登录。请按照以下步骤配置 SSH 密钥登录：
 
 1. 在 [ZJU Git](https://git.zju.edu.cn/) 中添加你的 SSH 公钥。集群 SSH 验证将从这里动态获取你的公钥。你可以通过 `https://git.zju.edu.cn/学号.keys` 查看你添加的公钥。
 1. 登录集群时，使用 `ssh 账户名+节点名@clusters.zju.edu.cn` 登录。如果你的 SSH 密钥配置正确，你将登录到集群登录节点。
