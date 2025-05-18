@@ -1,5 +1,5 @@
 # 项目设置
-site_name: HPC101
+site_name: HPC101 (2025)
 site_url: https://hpc101.zjusct.io/
 repo_url: https://github.com/ZJUSCT/HPC101
 repo_name: ZJUSCT/HPC101
@@ -18,7 +18,7 @@ nav:
 theme:
   name: material
   logo: assets/zjusct.svg
-  favicon: assets/zjusct.webp
+  favicon: assets/zjusct-hpc101.svg
   palette:
     - media: "(prefers-color-scheme)"
       primary: pink
@@ -134,6 +134,7 @@ extra_css:
 plugins:
   - git-revision-date-localized:
       enable_creation_date: true
+  # 该插件本地编辑时关闭，CI 时自动开启
   - git-committers:
       enabled: false
       repository: zjusct/docs.zjusct.io

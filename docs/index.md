@@ -153,6 +153,19 @@ HPC 提供的超高性能，使得它在很多领域都有着广泛的应用。�
 
 ## 贡献
 
+课程的历史版本保存于仓库的不同分支中，当前版本为 `main` 分支。为了加快速度，你可以在克隆时指定单个分支：
+
+```bash
+git clone -b main --single-branch git@github.com:ZJUSCT/HPC101.git
+```
+
+在本地构建并预览文档：
+
+```bash
+pip install -r requirements.txt
+mkdocs serve
+```
+
 课程实验文件夹布局如下：
 
 ```text
@@ -167,3 +180,8 @@ Lab0-Example
 ```bash
 find . -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) -exec sh -c 'cwebp "$1" -o "${1%.*}.webp" && rm "$1"' _ {} \;
 ```
+
+课程图标使用了两种英文字体，可以在 [FontSpace](https://www.fontspace.com/) 上找到：
+
+- Sekath Italic
+- Supercharge
