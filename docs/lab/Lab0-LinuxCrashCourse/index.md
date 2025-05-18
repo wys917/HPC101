@@ -1,27 +1,36 @@
-# Lab0: Linux Crash Course
+# Lab 0: Linux Crash Course
 
-!!! tip "为了让同学们习惯阅读英文文档，本次实验将全程使用英文。"
+!!! tip "为了让同学们习惯阅读英文文档，本次实验将全程使用英文"
 
-    在后文中安装系统时，我们也要求选择安装英文语言包。
+    在 Linux 和 HPC 领域，大量的软、硬件基础设施由世界各地的人们共同建设，英语是人们沟通交流中重要的一环。在未来，同学们将会接触到 NumPy，PyTorch，OpenMP，MPI 等知名的软件项目，同学们在使用它们的过程中，也不可避免地要阅读它们的文档来解决问题，而这些文档往往是由英文编写的。**为了让同学们习惯阅读英文文档，本次实验将全程使用英文。**
 
-    如果有任何问题，欢迎随时在群内提出或向助教询问。
+    当然，我们也知道阅读长篇的英文文档的确事件很困难的事情，因此我们**推荐同学下载并配置好 [沉浸式翻译](https://immersivetranslate.com/) **这个浏览器插件来辅助阅读。
 
-    如果阅读英文文档有困难，可以使用翻译软件辅助阅读。我们推荐在浏览器中使用 [沉浸式翻译](https://immersivetranslate.com/) 插件辅助阅读。
+    同样地，在后文中安装系统时，我们也要求选择安装英文语言包。
+    
+    别担心，课程的正式实验，依然是中文文档。
+    
+    如果在完成实验时有任何问题，或者实验文档中有些说明已经过时需要更新，欢迎随时在群内提出或向助教询问。
+
 
 !!! tip "关于本实验"
 
-    部分同学已经对 Linux 比较熟悉，但更多的同学并未接触过 Linux。希望通过本次实验，能够让同学们都对 Linux 具有**一致的基本认识，配置好相同的环境**，为后续实验做好准备。
+    大部分同学可能只是听说过 Linux，但从未接触过 Linux。为了减少大家完成 Lab 1 时，因为对 Linux 环境不熟悉造成的困难，我们添加了本实验。
+    
+    我们希望通过本次实验，能够让同学们对 Linux 具有**一致的基本认识，配置好相同的环境**，为后续实验做好准备。
 
-    本次不需要撰写实验报告，答案直接附在问题后面。你只需要提供几张截图：
+    本次实验不计入 HPC 101 短学期课程评价，不需要撰写实验报告，答案直接附在问题后面。
+    
+    如果你完成了本次试验，只需要提供几张截图：
 
-    - Task1.1: hash result
-    - Task2.1: `nano` screenshot
-    - Task3.2: SSH connection screenshot
-    - Task5.2: SSH connection screenshot
+    - Task 1.1: hash result
+    - Task 2.1: `nano` screenshot
+    - Task 3.2: SSH connection screenshot
+    - Task 5.2: SSH connection screenshot
 
-    如果你对本次实验内容轻车熟路，那么无需阅读内容，直接完成任务即可。
+    如果你之前对 Linux 有较深的了解，或者正在使用 Linux 系统，对本次实验内容轻车熟路，那么无需阅读内容，直接完成任务即可。
 
-!!! tip "如何阅读错误信息并处理错误"
+<!-- !!! tip "如何阅读错误信息并处理错误"
 
     命令行与图形界面的一大不同就是，在命令的运行过程中会给出很多记录（Log）和错误信息（Error Message）。新手可能都有畏难心理，觉得这些信息很难看懂/看了也没有什么用，但很多时候解决方法已经在错误信息中了。举个例子，下面是运行 `make` 时产生的一些信息，你能指出错误是什么吗？
 
@@ -59,7 +68,7 @@
 
     1. 阅读提示信息，定位错误位置和原因（如果读不懂，去 Google 或扔给 ChatGPT）。
     2. 去错误现场，看看发生了什么。
-    3. 根据提示和查阅得到的资料修复错误。
+    3. 根据提示和查阅得到的资料修复错误。 -->
 
 !!! info "其他优质资源"
 
@@ -102,7 +111,7 @@
 
 An operating system (OS) is system software that manages computer hardware, software resources, and provides common services for computer programs. The operating system is a vital component of the system software in a computer system.
 
-A kernel is a computer program that is the core of a computer's operating system, with complete control over everything in the system. It is the "lowest" level of the OS.
+A kernel is a computer program that is the **core of a computer's operating system**, with complete control over everything in the system. It is the "lowest" level of the OS.
 
 ### Linux
 
@@ -110,16 +119,96 @@ Linux is a family of open-source Unix-like operating systems based on the Linux 
 
 Linux is a popular choice for developers and system administrators due to its flexibility and open-source nature. Linux is also widely used in the HPC field due to its high performance and scalability.
 
+???+ success "🎉 Good Luck! You are a Linux User now!"
+    <!-- A minimal structure for the ScreenAdapter defined in browser/screen.js -->
+    <div id="screen_container" style="display: flex;">
+        <div style="white-space: pre; font: 14px monospace; line-height: 14px; margin: auto;"></div>
+        <canvas style="display: none"></canvas>
+    </div>
+
+    We want to show you that learning Linux is not hard and getting Linux is very easy. **Linux runs everywhere, even in your browser.**
+    
+    Don't be afraid, the black screen above is an emulator using [Web Assembly](https://webassembly.org/) technology. It runs [Linux](https://en.wikipedia.org/wiki/Linux) kernel 6.8.12 (Try typing `uname -a` to check it out!) with [Buildroot](https://buildroot.org/) environment (which contains a collection of basic Linux command line tools).
+        
+    You can try common Linux commands here, like `ls`, `cd`, `cat`, `echo`, `pwd`, `uname`, `date`, `top`, `ps`, `clear`, and `exit`.
+
+    Good job! Now you're a true Linux user. You can go on and finish this lab.
+
+<script src="/javascripts/v86/libv86.js"></script>
+<script>
+"use strict";
+
+// Save references to the original event handler methods
+const originalAddEventListener = window.addEventListener;
+const originalRemoveEventListener = window.removeEventListener;
+
+// Array to store keydown listeners
+const keydownListeners = [];
+
+// Override addEventListener to track keydown listeners
+window.addEventListener = function(type, listener, options) {
+originalAddEventListener.call(window, type, listener, options);
+if (type === 'keydown') {
+    keydownListeners.push({ listener, options });
+}
+};
+
+// Override removeEventListener to update the keydown listeners list
+window.removeEventListener = function(type, listener, options) {
+originalRemoveEventListener.call(window, type, listener, options);
+if (type === 'keydown') {
+    const index = keydownListeners.findIndex(entry => 
+    entry.listener === listener && 
+    (entry.options === options || 
+    (typeof entry.options === 'object' && typeof options === 'object' && 
+        JSON.stringify(entry.options) === JSON.stringify(options))));
+    if (index !== -1) {
+    keydownListeners.splice(index, 1);
+    }
+}
+};
+
+window.onload = function()
+{
+    // Remove key listener from material mkdocs
+    if (keydownListeners.length > 0) {
+        const firstListener = keydownListeners.shift();
+        window.removeEventListener('keydown', firstListener.listener, firstListener.options);
+    }
+
+    var emulator = new V86({
+        wasm_path: "/javascripts/v86/v86.wasm",
+        memory_size: 512 * 1024 * 1024,
+        vga_memory_size: 8 * 1024 * 1024,
+        screen_container: document.getElementById("screen_container"),
+        bios: {
+            url: "/javascripts/v86/seabios.bin",
+        },
+        vga_bios: {
+            url: "/javascripts/v86/vgabios.bin",
+        },
+        bzimage: {
+            url: "/javascripts/v86/buildroot-bzimage68.bin",
+        },
+        autostart: true,
+    });
+};
+</script>
+
 ### Linux distributions
+
+What is Linux distribution? A Linux distribution (or Linux distro) is essentially a collection of software packages and configurations that are used to create a complete Linux operating system. They both use the Linux kernel, but might have different out-of-the-box configurations and user applications.
 
 There are many Linux distributions available, each with its own strengths and weaknesses. Here are some popular choices:
 
-- **Ubuntu**: A popular choice for beginners due to its ease of use and large community support.
+- **Ubuntu**: A popular choice for beginners due to its ease of use, large community support, and compatibility with many hardware devices.
 - **Debian**: Known for its stability and security.
 - **Fedora**: A community-driven Linux distribution sponsored by Red Hat.
 - **Arch Linux**: A lightweight and flexible Linux distribution that follows the "rolling release" model.
 
-In HPC and cloud computing, Debian is a popular choice due to its stability and security. We recommend using Debian for this course.
+In HPC and cloud computing, Debian is a popular choice due to its stability and security.
+
+**We recommend using Debian for this course.**
 
 !!! question "Task 1.1: Download and verify the latest **textonly** version of Debian ISO image from [ZJU Mirrors](https://mirrors.zju.edu.cn/debian-cd/)"
 
@@ -130,26 +219,30 @@ In HPC and cloud computing, Debian is a popular choice due to its stability and 
         ```text
         Index of /debian-cd/
         ../
-        12.5.0/                                            19-Feb-2024 18:01                   -
-        12.5.0-live/                                       10-Feb-2024 20:12                   -
-        current/                                           19-Feb-2024 18:01                   -
-        current-live/                                      10-Feb-2024 20:12                   -
+        12.11.0/                                           17-May-2025 17:55                   -
+        12.11.0-live/                                      17-May-2025 17:55                   -
+        current/                                           17-May-2025 17:55                   -
+        current-live/                                      17-May-2025 17:55                   -
         project/                                           23-May-2005 16:50                   -
-        ls-lR.gz                                           28-May-2024 17:12               13276
+        ls-lR.gz                                           17-May-2025 20:12               13882
         ```
 
-        We need you to download the **textonly** version. Don't know how to find correct download link from the above webpage? Read this guide: [:simple-github: Your guide to Debian iso downloads](https://github.com/slowpeek/debian-iso-guide).
+        We need you to download the **textonly** version.
+        
+        Don't know how to find correct download link from the above webpage? Read this guide: [:simple-github: Your guide to Debian iso downloads](https://github.com/slowpeek/debian-iso-guide).
 
     === "Step 2"
 
 
         !!! warning "For MacBook users with M series processors"
 
-            You need to download the `arm64` version of Debian.
+            You need to download the `arm64` version of Debian, but **not** the `debian-mac-` version under `amd64` directory.
 
-        The download link should look like this: [https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-12.5.0-amd64-netinst.iso](https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-12.5.0-amd64-netinst.iso).
+        The download link should look like this: [https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso](https://mirrors.zju.edu.cn/debian-cd/current/amd64/iso-cd/debian-12.11.0-amd64-netinst.iso).
 
-        - What is the difference between `debian-12.5.0-amd64-netinst.iso` and the `debian-12.5.0-amd64-DVD-1.iso`?
+        **Quick questions:**
+
+        - What is the difference between `debian-12.11.0-amd64-netinst.iso` and the `debian-12.11.0-amd64-DVD-1.iso`?
         - What is the difference between the `amd64` and `arm64` versions?
 
         ??? success "Check your answer"
@@ -159,13 +252,17 @@ In HPC and cloud computing, Debian is a popular choice due to its stability and 
 
     === "Step 3"
 
-        Verify the integrity of the downloaded ISO image. You can use:
+        Verify the integrity of the downloaded ISO image. This is to ensure the ISO image is not corrupted or modified during the download process.
+        
+        You can use:
 
-        - `sha256sum` on Linux: `sha256sum debian-12.5.0-amd64-netinst.iso`
-        - `certutil` on Windows: `certutil -hashfile debian-12.5.0-amd64-netinst.iso SHA256`
-        - `shasum` on macOS: `shasum -a 256 debian-12.5.0-amd64-netinst.iso`
+        - `sha256sum` on Linux: `sha256sum debian-12.10.0-amd64-netinst.iso`
+        - `certutil` on Windows: `certutil -hashfile debian-12.10.0-amd64-netinst.iso SHA256`
+        - `shasum` on macOS: `shasum -a 256 debian-12.10.0-amd64-netinst.iso`
 
-        Show the result of your verification.
+        Show the result of your verification, and compare it with the result in `SHA256SUMS` file under the same directory as the ISO image.
+
+        If they are the same, then you are good to go.
 
 ### Virtual Machine
 
@@ -589,7 +686,16 @@ Git is a distributed version control system that is widely used in software deve
 
     === "Step 1"
 
-        Follow this guide to generate an SSH key: [:simple-github: Generating a new SSH key and adding it to the ssh-agent](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+        Follow this guide to generate an SSH key: [:simple-github: Generating a new SSH key and adding it to the ssh-agent](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
+
+        Please take care of your **private** key, don't share it with anyone. And for the **public** key, you can share it with anyone who needs it.
+
+        We strongly suggest you to use `ed25519` algorithm instead of `rsa` for better security with shorter key length, unless you want to end up being like this when sharing your SSH **public** key:
+
+        <figure markdown="span" style="width: 30%;">
+        ![ssh_key_meme](image/ssh_key_meme.webp)
+        </figure>
+
 
     === "Step 2"
 
@@ -604,7 +710,7 @@ Git is a distributed version control system that is widely used in software deve
         ```bash
         $ ssh -T git@git.zju.edu.cn
         ssh -T git@git.zju.edu.cn
-        Welcome to GitLab, @322010****!
+        Welcome to GitLab, @324010****!
         ```
 
         Show the screenshot of your successful connection.
