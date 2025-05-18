@@ -519,9 +519,8 @@ flowchart LR
 !!! note "SSH 密钥认证的原理"
 
     SSH 密钥认证基于密码学中的非对称加密算法。在 SSH 密钥认证中，用户有两个密钥：私钥（private key）和公钥（public key），它们一一配对。私钥只有用户自己知道，公钥可以公开。私钥能够加密数据，公钥能够解密数据。用户可以将公钥放在服务器上，当用户连接服务器时，服务器会用公钥加密一个随机数发送给用户，用户用私钥加密这个随机数，然后用这个随机数加密数据发送给服务器，服务器用公钥解密数据。如果用户能够成功加密，说明用户拥有私钥，连接成功。
-
     <figure markdown="span">
-    ![ssh](image/ssh.webp)
+    ![ssh](image/ssh.webp){ style="background-color: white;" }
     <figcaption>SSH 密钥认证<br /><small>来源：[How SSH encrypts communications, when using password-based authentication? - StackOverflow](https://stackoverflow.com/questions/59555705/how-ssh-encrypts-communications-when-using-password-based-authentication)</small></figcaption>
     </figure>
 
@@ -622,88 +621,205 @@ LU 分解完成后，HPL 使用回代求解 $x$，并验证解的正确性。
 
 !!! note "HPL 通过求解线性系统来评估计算机集群的浮点性能"
 
-## 任务二：使用 HPL 测试虚拟机集群的性能
+## 任务二：使用 HPL 测试集群的性能
 
-- 连接与互访：
-    - 克隆三次虚拟机，得到四台虚拟机组成的集群。为新克隆的虚拟机重新生成 MAC 地址。
-    - 将它们分别命名为 `node01`、`node02`、`node03`、`node04`。注意，不只是在 Hypervisor 中修改名字，还需要在虚拟机中修改 `/etc/hostname`。
-    - 获取它们的 IP 地址，在 `node01` 中修改 `/etc/hosts` 文件，添加其他节点的 IP 地址。
-    - 在 `node01` 中生成密钥对，将公钥放在其他节点上。
-    - 验证 SSH 密钥认证是否成功。
-- 测试 MPI 运行：
-    - 在 `node01` 上写一个 `hostfile`，指定节点和进程数。
-    - 使用该 `hostfile` 执行 `mpirun`，在所有节点上运行 `uptime` 或 `cat /etc/hostname`。
-- 运行 HPL：
-    - 使用 `mpirun` 在所有节点上运行 `xhpl`，查看运行结果。提示：注意工作路径。
-    - 阅读 HPL 源码包中的 `TUNING` 文件，了解 `HPL.dat` 文件的配置，尝试修改 `HPL.dat` 文件，重新运行 `xhpl`。
-    - 给出你得到的最高性能数据以及对应的 `HPL.dat` 配置。尝试解释你所作的修改对性能的影响。
+=== "使用虚拟机搭建集群"
+    - 连接与互访：
+        - 克隆三次虚拟机，得到四台虚拟机组成的集群。为新克隆的虚拟机重新生成 MAC 地址。
+        - 将它们分别命名为 `node01`、`node02`、`node03`、`node04`。注意，不只是在 Hypervisor 中修改名字，还需要在虚拟机中修改 `/etc/hostname`。
+        - 获取它们的 IP 地址，在 `node01` 中修改 `/etc/hosts` 文件，添加其他节点的 IP 地址。
+        - 在 `node01` 中生成密钥对，将公钥放在其他节点上。
+        - 验证 SSH 密钥认证是否成功。
+    - 测试 MPI 运行：
+        - 在 `node01` 上写一个 `hostfile`，指定节点和进程数。
+        - 使用该 `hostfile` 执行 `mpirun`，在所有节点上运行 `uptime` 或 `cat /etc/hostname`。
+    - 运行 HPL：
+        - 使用 `mpirun` 在所有节点上运行 `xhpl`，查看运行结果。提示：注意工作路径。
+        - 阅读 HPL 源码包中的 `TUNING` 文件，了解 `HPL.dat` 文件的配置，尝试修改 `HPL.dat` 文件，重新运行 `xhpl`。
+        - 给出你得到的最高性能数据以及对应的 `HPL.dat` 配置。尝试解释你所作的修改对性能的影响。
 
-如果你遇到了无法解决的困难，可以参考下面的解答和说明。如果还是无法解决，请向我们反馈。
+    ??? success "步骤参考和说明"
 
-??? success "步骤参考和说明"
+        - 连接与互访
 
-    - 连接与互访
+        [cards(docs/lab/Lab1-MiniCluster/clone.json)]
 
-    [cards(docs/lab/Lab1-MiniCluster/clone.json)]
+        ```bash
+        # 修改主机名
+        sudo vim /etc/hostname
+        sudo reboot
+        # 获取 IP 地址
+        ip a
+        # 修改 /etc/hosts
+        sudo vim /etc/hosts
+        # 生成密钥对
+        # 注意不需要为密钥设置密码，全程回车即可
+        ssh-keygen
+        # 将公钥放在其他节点上
+        ssh-copy-id user@hostname
+        # 验证 SSH 密钥认证是否成功
+        ssh user@hostname
+        ```
 
-    ```bash
-    # 修改主机名
-    sudo vim /etc/hostname
-    sudo reboot
-    # 获取 IP 地址
-    ip a
-    # 修改 /etc/hosts
-    sudo vim /etc/hosts
-    # 生成密钥对
-    # 注意不需要为密钥设置密码，全程回车即可
-    ssh-keygen
-    # 将公钥放在其他节点上
-    ssh-copy-id user@hostname
-    # 验证 SSH 密钥认证是否成功
-    ssh user@hostname
-    ```
+        `/etc/hosts` 举例如下：
 
-    `/etc/hosts` 举例如下：
+        ```text
+        127.0.1.1       node01
+        192.168.136.130 node02
+        192.168.136.131 node03
+        192.168.136.132 node04
+        ```
 
-    ```text
-    127.0.1.1       node01
-    192.168.136.130 node02
-    192.168.136.131 node03
-    192.168.136.132 node04
-    ```
+        - 测试 MPI 运行
 
-    - 测试 MPI 运行
+        `hostfile` 举例如下：
 
-    `hostfile` 举例如下：
+        ```text
+        node01 slots=1
+        node02 slots=2
+        node03 slots=3
+        node04 slots=4
+        ```
 
-    ```text
-    node01 slots=1
-    node02 slots=2
-    node03 slots=3
-    node04 slots=4
-    ```
+        ```bash
+        mpirun --hostfile hostfile cat /etc/hostname
+        ```
 
-    ```bash
-    mpirun --hostfile hostfile cat /etc/hostname
-    ```
+        成功的结果如下图所示：
 
-    成功的结果如下图所示：
+        ![mpi](image/mpi.webp)
 
-    ![mpi](image/mpi.webp)
+        MPI 会给出较多的提示信息，比如图中的就不影响程序正常运行，可以忽略或按照提示关闭提醒。
 
-    MPI 会给出较多的提示信息，比如图中的就不影响程序正常运行，可以忽略或按照提示关闭提醒。
+        - 运行 HPL
 
-    - 运行 HPL
+        ```bash
+        # 切换工作目录到 HPL 所在目录，xhpl 需要在工作目录下找到 HPL.dat
+        cd hpl-2.3/bin/Linux_PII_FBLAS/
+        mpirun --hostfile hostfile ./xhpl
+        ```
 
-    ```bash
-    # 切换工作目录到 HPL 所在目录，xhpl 需要在工作目录下找到 HPL.dat
-    cd hpl-2.3/bin/Linux_PII_FBLAS/
-    mpirun --hostfile hostfile ./xhpl
-    ```
+        运行结果如下图所示：
 
-    运行结果如下图所示：
+        ![hpl](image/hpl.webp)
 
-    ![hpl](image/hpl.webp)
+=== "使用 Docker 搭建集群"
+    - 创建 Dockerfile：
+        - 安装必要的依赖包和编译工具
+        - 配置 SSH 服务用于容器间通信
+        - 配置 SSH 密钥认证
+        - 基于 Linux 镜像创建包含编译安装 MPI 和 HPL 的 Dockerfile
+
+    - 构建和运行容器：
+        - 使用 docker-compose 创建多个容器实例
+        - 配置容器网络实现互联
+        - 设置容器主机名和 hosts 文件
+
+    - 运行 HPL 测试：
+        - 在容器中配置 hostfile
+        - 使用 mpirun 运行 HPL 测试
+        - 调整 HPL.dat 参数优化性能
+
+    ??? success "步骤参考和说明"
+
+        - 创建 Dockerfile
+
+        ```dockerfile
+
+        # 你可以自由地选择镜像，但下面的过程可能需要修改
+        FROM ubuntu:25.04
+
+        # 安装依赖
+        RUN apt-get update && apt-get install -y \
+            build-essential \
+            openssh-server 
+
+        WORKDIR /opt
+
+        # 编译安装 MPI，BLAS，HPL 等等
+        
+        # to be filled
+
+        # 你可以在这里配置密钥认证，可以直接使用 root 用户，也可以创建用户
+
+        EXPOSE 22
+        CMD ["service", "ssh", "start", "-D"]
+        ```
+
+        - 创建 docker-compose.yml
+
+        ```yaml
+        version: '3'
+        services:
+          node01:
+            build: .
+            hostname: node01
+            networks:
+              hpl_net:
+                ipv4_address: 172.20.0.2
+
+          node02:
+            build: .
+            hostname: node02
+            networks:
+              hpl_net:
+                ipv4_address: 172.20.0.3
+
+          node03:
+            build: .
+            hostname: node03
+            networks:
+              hpl_net:
+                ipv4_address: 172.20.0.4
+
+          node04:
+            build: .
+            hostname: node04
+            networks:
+              hpl_net:
+                ipv4_address: 172.20.0.5
+
+        networks:
+          hpl_net:
+            driver: bridge
+            ipam:
+              config:
+                - subnet: 172.20.0.0/16
+        ```
+
+        - 构建和启动容器
+
+        ```bash
+        # 构建镜像
+        docker-compose build
+
+        # 启动容器
+        docker-compose up -d
+
+        # 进入主节点配置
+        docker exec -it node01 bash
+        ```
+
+        - 运行 HPL 测试
+
+        ```bash
+        # 创建 hostfile, docker 会帮助我们自动进行 dns 解析
+        echo "node01 slots=1" > hostfile
+        echo "node02 slots=1" >> hostfile
+        echo "node03 slots=1" >> hostfile
+        echo "node04 slots=1" >> hostfile
+
+        # 运行 HPL
+        cd /path/to/hpl-2.3
+
+        mpirun --hostfile hostfile ./xhpl
+        ```
+
+=== "使用你喜欢的方式搭建集群"
+
+   如果你觉得这两种方法都不适合你，请使用你喜欢的方式搭建集群，并完成 HPL 测试。
+
+
 
 ## 知识讲解：技术杂谈
 
