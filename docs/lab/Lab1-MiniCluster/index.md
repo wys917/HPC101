@@ -53,7 +53,7 @@
 
 !!! warning "<del>不得不品的手动编译</del>"
     在编译安装过程中会出现各种各样的问题<del>这是预期内的</del>，我们鼓励你尝试解决这些问题，并记录下你尝试过的方法和解决方法。
-    除了必须手动编译安装指定的CBLAS和HPL外，我们还鼓励你尝试使用其他方式安装HPL，可以在报告中记录你尝试过的方法。
+    除了必须手动编译安装指定的BLAS和HPL外，我们还鼓励你尝试使用其他方式安装HPL，可以在报告中记录你尝试过的方法。
 
 - 性能测试：在虚拟机/容器集群上使用 OpenMPI 运行 CPU 上的 HPL 性能测试，记录测试结果。
 
@@ -410,7 +410,7 @@ Angband 也提供了 CMake 的构建方式。查看 Angband 在线文档，你�
 
 ```mermaid
 flowchart LR
-    A[HPL] --> B[BLAS]
+    A[HPL] --> B[CBLAS] --> D[LAPACK]
     A[HPL] --> C[OpenMPI]
 ```
 
@@ -419,10 +419,10 @@ flowchart LR
     - 解压源码，进入源码目录，阅读 `README.md`。
     - 前往在线文档，查看构建和安装部分，按文档指示构建并安装 OpenMPI。
     - 验证安装是否成功。提示：运行 `ompi_info -all`。
-- 构建 CBLAS：
-    - 下载指定版本 CBLAS 源码：[CBLAS.tgz](./assets/CBLAS.tgz)。
-    - 解压源码，进入源码目录。因为这是一个简单的库不是应用程序，所以这次没有 `README` 了。你发现有 `Makefile`，直接构建即可。
-    - 如果没有错误，目录中会生成一个 `.a` 文件，这是待会要用到的静态链接库。
+- 构建 BLAS，CBLAS：
+    - 下载指定版本 BLAS 源码 [blas-3.12.0.tgz](./assets/blas-3.12.0.tgz), 并完成构建。
+    - 下载指定版本 CBLAS 源码：[CBLAS.tgz](./assets/CBLAS.tgz)。相应修改 `Makefile.in` 后完成构建
+    - 如果没有错误，两个目录中都会生成一个 `.a` 文件，这是待会要用到的静态链接库。
 
 ![BLAS](image/blas.webp){ width=50% }
 
@@ -472,7 +472,9 @@ flowchart LR
     tar xvf blas-3.12.0.tgz
     cd BLAS-3.12.0
     make 
-    # 注意， 这不是我们需要的 CBLAS， 安装过程仅供参考
+
+    # 继续完成 CBLAS 的构建
+
     ```
 
     - HPL
