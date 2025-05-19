@@ -7,20 +7,19 @@
     当然，我们也知道阅读长篇的英文文档的确事件很困难的事情，因此我们**推荐同学下载并配置好 [沉浸式翻译](https://immersivetranslate.com/) **这个浏览器插件来辅助阅读。
 
     同样地，在后文中安装系统时，我们也要求选择安装英文语言包。
-    
-    别担心，课程的正式实验，依然是中文文档。
-    
-    如果在完成实验时有任何问题，或者实验文档中有些说明已经过时需要更新，欢迎随时在群内提出或向助教询问。
 
+    别担心，课程的正式实验，依然是中文文档。
+
+    如果在完成实验时有任何问题，或者实验文档中有些说明已经过时需要更新，欢迎随时在群内提出或向助教询问。
 
 !!! tip "关于本实验"
 
     大部分同学可能只是听说过 Linux，但从未接触过 Linux。为了减少大家完成 Lab 1 时，因为对 Linux 环境不熟悉造成的困难，我们添加了本实验。
-    
+
     我们希望通过本次实验，能够让同学们对 Linux 具有**一致的基本认识，配置好相同的环境**，为后续实验做好准备。
 
     本次实验不计入 HPC 101 短学期课程评价，不需要撰写实验报告，答案直接附在问题后面。
-    
+
     如果你完成了本次试验，只需要提供几张截图：
 
     - Task 1.1: hash result
@@ -127,9 +126,9 @@ Linux is a popular choice for developers and system administrators due to its fl
     </div>
 
     We want to show you that learning Linux is not hard and getting Linux is very easy. **Linux runs everywhere, even in your browser.**
-    
+
     Don't be afraid, the black screen above is an emulator using [Web Assembly](https://webassembly.org/) technology. It runs [Linux](https://en.wikipedia.org/wiki/Linux) kernel 6.8.12 (Try typing `uname -a` to check it out!) with [Buildroot](https://buildroot.org/) environment (which contains a collection of basic Linux command line tools).
-        
+
     You can try common Linux commands here, like `ls`, `cd`, `cat`, `echo`, `pwd`, `uname`, `date`, `top`, `ps`, `clear`, and `exit`.
 
     Good job! Now you're a true Linux user. You can go on and finish this lab.
@@ -157,10 +156,10 @@ if (type === 'keydown') {
 window.removeEventListener = function(type, listener, options) {
 originalRemoveEventListener.call(window, type, listener, options);
 if (type === 'keydown') {
-    const index = keydownListeners.findIndex(entry => 
-    entry.listener === listener && 
-    (entry.options === options || 
-    (typeof entry.options === 'object' && typeof options === 'object' && 
+    const index = keydownListeners.findIndex(entry =>
+    entry.listener === listener &&
+    (entry.options === options ||
+    (typeof entry.options === 'object' && typeof options === 'object' &&
         JSON.stringify(entry.options) === JSON.stringify(options))));
     if (index !== -1) {
     keydownListeners.splice(index, 1);
@@ -228,7 +227,7 @@ In HPC and cloud computing, Debian is a popular choice due to its stability and 
         ```
 
         We need you to download the **textonly** version.
-        
+
         Don't know how to find correct download link from the above webpage? Read this guide: [:simple-github: Your guide to Debian iso downloads](https://github.com/slowpeek/debian-iso-guide).
 
     === "Step 2"
@@ -253,7 +252,7 @@ In HPC and cloud computing, Debian is a popular choice due to its stability and 
     === "Step 3"
 
         Verify the integrity of the downloaded ISO image. This is to ensure the ISO image is not corrupted or modified during the download process.
-        
+
         You can use:
 
         - `sha256sum` on Linux: `sha256sum debian-12.10.0-amd64-netinst.iso`

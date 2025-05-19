@@ -354,7 +354,7 @@ Angband 也提供了 CMake 的构建方式。查看 Angband 在线文档，你�
 
 计算机之间通过网络连接。在网络中，有两个重要的地址：MAC 地址和 IP 地址。通过 Lab 0 的学习，你应该理解了这两种地址如何通过 ARP 协议联系在一起，也理解了虚拟机中的 NAT 网络。做任务时，你需要克隆虚拟机。克隆出来的新虚拟机的 MAC 地址与原来的虚拟机相同。思考一下，如果同时启动这两台虚拟机，它们能正常通信吗？你可以参考 [Duplicate MAC address on the same LAN possible? - StackExchange](https://serverfault.com/questions/462178/duplicate-mac-address-on-the-same-lan-possible)。
 
-[计算机集群（Cluster）](https://en.wikipedia.org/wiki/Computer_cluster)是连接在一起、协同工作的一组计算机，集群中的每个计算机都是一个节点。在集群中，由软件将不同的计算任务（task）分配（schedule）到相应的一个或一群节点（node）上。通常会有一个节点作为主节点（master/root node），其他节点作为从节点（slave node）。主节点负责调度任务（当然也可能负责执行部分任务），从节点负责执行任务。此外，也通常会有一个共享的文件系统，用于存储任务数据和结果，这些技术将在[第三部分](#NFS)介绍。
+[计算机集群（Cluster）](https://en.wikipedia.org/wiki/Computer_cluster)是连接在一起、协同工作的一组计算机，集群中的每个计算机都是一个节点。在集群中，由软件将不同的计算任务（task）分配（schedule）到相应的一个或一群节点（node）上。通常会有一个节点作为主节点（master/root node），其他节点作为从节点（slave node）。主节点负责调度任务（当然也可能负责执行部分任务），从节点负责执行任务。此外，也通常会有一个共享的文件系统，用于存储任务数据和结果，这些技术将在[第三部分](#nfs)介绍。
 
 <figure markdown="span">
 ![cluster](image/cluster.webp)
@@ -522,7 +522,7 @@ flowchart LR
 !!! warning "不得不品的手动编译"
     在编译安装过程中会出现各种各样的问题，因为某些项目的源代码更新不频繁，可能在新的环境中无法正常编译，这是很常见的现象。
     因此，即使有很多自动化编译安装的方法，我们还是希望你能够亲自动手编译安装这些项目，来积累解决编译失败问题的经验。
-    
+
     遇到问题时，你可以借助搜索引擎、StackOverflow 以及 AI 工具，尝试解决它们。
 
     如果你遇到了无法解决的困难，可以参考下面的解答和说明。如果还是无法解决，请向我们反馈。
@@ -564,7 +564,7 @@ flowchart LR
     wget "http://www.netlib.org/blas/blas-3.12.0.tgz"
     tar xvf blas-3.12.0.tgz
     cd BLAS-3.12.0
-    make 
+    make
 
     # 继续完成 CBLAS 的构建
 
@@ -581,9 +581,9 @@ flowchart LR
     make arch=Linux_PII_FBLAS
     ```
 
-    `Make.Linux_PII_FBLAS` 中需要修改的部分有   
+    `Make.Linux_PII_FBLAS` 中需要修改的部分有
     !!! warning "注意"
-   
+
         **修改仅供参考**, 请根据你的实际情况进行修改。
 
 
@@ -809,8 +809,6 @@ flowchart LR
 === "使用你喜欢的方式搭建集群"
      如果你觉得这两种方法都不适合你，请使用你喜欢的方式搭建集群，并完成 HPL 测试。
 
-
-
 !!! warning "性能调优"
 
     在完成基本的 HPL 测试后，你可以尝试通过以下方法提高性能：
@@ -831,7 +829,6 @@ flowchart LR
 
     请记录你尝试过的优化方法及其效果，分析性能提升的原因。性能的绝对值不作为评判依据，重要的是你通过哪些方法提高了性能，以及你对这些优化方法的理解。
 
-
 ## Bonus 任务
 
 !!! warning "Bonus 任务是什么?"
@@ -839,7 +836,7 @@ flowchart LR
     Bonus 任务是一些比较有挑战性的任务，**选做**。我们鼓励大家尝试完成。在实验报告中记录你对于 Bonus 任务尝试过的解决方法，将根据完成度获得该次实验的加分。
 
     其中，加星标 (`*`) 的 Bonus 任务难度较大，完成其中的 1 至 2 个便能证明你的实力。加星标的任务**仅作为选拔超算队新成员的依据，不参与课程评价和实验加分**。欢迎希望加入超算队的同学挑战它们。
-    
+
     Lab1 在课程开始后还会再提交一次，你还可以利用期末考试后至开课前期的空闲时间继续补充自己尝试的内容。
 
 在完成 Bonus 任务前，你可以先阅读[技术杂谈](#技术杂谈)章节，了解一些相关的知识。
@@ -860,7 +857,6 @@ flowchart LR
     - 你也可以尝试其它 BLAS 实现，如更新版本的 [LAPACK](https://www.netlib.org/lapack/)，[OpenBLAS](http://www.openmathlib.org/OpenBLAS/)，[MKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html)，[AOCL](https://www.amd.com/en/developer/aocl.html) 等, 并比较它们的性能。
     - 使用 spack 包管理器安装 OpenMPI、多种 BLAS 并 相应编译多种 HPL。
 
-
 ## 技术杂谈
 
 ### 包管理器
@@ -870,6 +866,11 @@ flowchart LR
 - Debian 系统使用 `apt` 包管理器提供常用软件包，以二进制的形式进行软件分发。
 - [Spack](https://spack.io/) 是 HPC 领域最知名的包管理器，提供高性能计算领域几乎所有软件包的构建和安装。它通常需要从源码构建软件包，有非常多选项可以配置。
 - [Conda](https://docs.conda.io/en/latest/) 用于管理 Python 环境和软件包。
+
+目前，超算队集群使用 Spack 作为包管理器，提供了大部分软件包的构建和安装。如果你能够在本 Lab 熟悉该工具，将会为后续实验和项目的环境管理提供很大帮助。你可以阅读以下资料：
+
+- [Spack 官方文档](https://spack.readthedocs.io/en/latest/)
+- [包管理器：Spack - ZJUSCT 文档与博客](https://docs.zjusct.io/operation/software/spack/)
 
 ### Docker
 
@@ -935,7 +936,6 @@ NFS 的主要特点包括：
 - [网络信息服务：NIS](https://docs.zjusct.io/operation/system/service/nis/)
 - [引导方式：PXE](https://docs.zjusct.io/operation/system/diskless/pxe/)
 - [数据采集：OpenTelemetry](https://docs.zjusct.io/operation/observability/opentelemetry/)
-
 
 ## 参考资料
 
