@@ -715,7 +715,7 @@ Git is a distributed version control system that is widely used in software deve
 
         Show the screenshot of your successful connection.
 
-!!! warning "This public key will be collected and **used to access the clusters** in the future."
+!!! warning "This public key will be **used to access the clusters** in the future."
 
 ## References
 
