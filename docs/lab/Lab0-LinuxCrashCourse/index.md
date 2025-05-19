@@ -1,33 +1,39 @@
 # Lab 0: Linux Crash Course
 
-!!! tip "为了让同学们习惯阅读英文文档，本次实验将全程使用英文"
+!!! tip "QC PASS"
 
-    在 Linux 和 HPC 领域，大量的软、硬件基础设施由世界各地的人们共同建设，英语是人们沟通交流中重要的一环。在未来，同学们将会接触到 NumPy，PyTorch，OpenMP，MPI 等知名的软件项目，同学们在使用它们的过程中，也不可避免地要阅读它们的文档来解决问题，而这些文档往往是由英文编写的。**为了让同学们习惯阅读英文文档，本次实验将全程使用英文。**
+    This lab workflow has passed the quality check. Feel free to proceed.
 
-    当然，我们也知道阅读长篇的英文文档的确事件很困难的事情，因此我们**推荐同学下载并配置好 [沉浸式翻译](https://immersivetranslate.com/) **这个浏览器插件来辅助阅读。
+    Responsible TA: **Xingxing Hao @mrhaoxx**
 
-    同样地，在后文中安装系统时，我们也要求选择安装英文语言包。
+!!! tip "To help students get accustomed to reading English documentation, this lab will be conducted entirely in English."
 
-    别担心，课程的正式实验，依然是中文文档。
+    In the fields of **Linux** and **HPC**, a significant amount of software and hardware infrastructure is collaboratively developed by people from around the world. **English serves as a crucial medium for communication.** In the future, you will encounter well-known software projects such as **NumPy**, **PyTorch**, **OpenMP**, and **MPI**. While using these tools, you will inevitably need to read their documentation to solve problems, and these documents are often written in English. **To help students get accustomed to reading English documentation, this lab will be conducted entirely in English.**
 
-    如果在完成实验时有任何问题，或者实验文档中有些说明已经过时需要更新，欢迎随时在群内提出或向助教询问。
+    Of course, we understand that reading lengthy English documents can be challenging. Therefore, we **recommend students download and configure the [Immersive Translate](https://immersivetranslate.com/) browser extension** to assist with reading.
 
-!!! tip "关于本实验"
+    Similarly, when installing the system later in this lab, we also require selecting the **English language pack**.
 
-    大部分同学可能只是听说过 Linux，但从未接触过 Linux。为了减少大家完成 Lab 1 时，因为对 Linux 环境不熟悉造成的困难，我们添加了本实验。
+    Don't worry, the rest of course labs will still provide documentation in **Chinese**.
 
-    我们希望通过本次实验，能够让同学们对 Linux 具有**一致的基本认识，配置好相同的环境**，为后续实验做好准备。
+    If you encounter any issues while completing the lab or notice that some instructions in the lab documentation are outdated and need updating, feel free to raise them in the group or consult the **TA**.
 
-    本次实验不计入 HPC 101 短学期课程评价，不需要撰写实验报告，答案直接附在问题后面。
+!!! tip "About This Lab"
 
-    如果你完成了本次试验，只需要提供几张截图：
+    Most students may have only heard of **Linux** but have never used it. To reduce the difficulties caused by unfamiliarity with the **Linux environment** when completing **Lab 1**, we have added this lab.
 
-    - Task 1.1: hash result
-    - Task 2.1: `nano` screenshot
-    - Task 3.2: SSH connection screenshot
-    - Task 5.2: SSH connection screenshot
+    Through this lab, we aim to provide students with a **consistent basic understanding of Linux and set up a uniform environment**, laying the groundwork for subsequent labs.
 
-    如果你之前对 Linux 有较深的了解，或者正在使用 Linux 系统，对本次实验内容轻车熟路，那么无需阅读内容，直接完成任务即可。
+    This lab is **not included in the evaluation** of the **HPC 101 short-term course**, and no lab report is required. **Answers are directly provided after the questions.**
+
+    If you complete this lab, you only need to provide a few screenshots:
+
+    - **Task 1.1**: Hash result
+    - **Task 2.1**: `nano` screenshot
+    - **Task 3.2**: SSH connection screenshot
+    - **Task 5.2**: SSH connection screenshot
+
+    If you already have a **deep understanding of Linux** or are currently using a **Linux system** and are familiar with the content of this lab, you can skip reading the content and directly complete the tasks.
 
 <!-- !!! tip "如何阅读错误信息并处理错误"
 
@@ -68,10 +74,6 @@
     1. 阅读提示信息，定位错误位置和原因（如果读不懂，去 Google 或扔给 ChatGPT）。
     2. 去错误现场，看看发生了什么。
     3. 根据提示和查阅得到的资料修复错误。 -->
-
-!!! info "其他优质资源"
-
-    - 中科大：[Linux 101](https://101.lug.ustc.edu.cn/)
 
 ## Tasks
 
@@ -265,9 +267,9 @@ In HPC and cloud computing, Debian is a popular choice due to its stability and 
 
 ### Virtual Machine
 
-??? info "More on Virtualization"
+!!! info "More on Virtualization"
 
-    如果你对虚拟化、云计算感兴趣，可以观看 [Cluoud·Explained 系列视频](https://www.bilibili.com/video/BV1b64y1a7wL/) 了解相关概念作为入门。
+    If you are interested in virtualization and cloud computing, you can watch the [Cloud·Explained video series](https://www.bilibili.com/video/BV1b64y1a7wL/) to learn the related concepts as an introduction.
 
 A virtual machine (VM) is a software-based emulation of a computer. By running a VM on your computer, you can run multiple operating systems on the same hardware. This is useful for testing software, running legacy applications, and learning new operating systems.
 
@@ -296,7 +298,7 @@ You can choose whatever hypervisor you like. In this course, we recommend using 
     - [VMware Workstation Pro](https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Workstation%20Pro)
     - [VMware Fusion](https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Fusion)
 
-    （下载时的信息如地址等随便填就好，下载这些大公司的软件都是这么麻烦的😵）
+    (When filling out the download form, you can use any information like address, etc. It's common for large companies to have such tedious download processes 😵.)
 
 !!! question "Task 1.3: Create a new virtual machine and install Debian"
 

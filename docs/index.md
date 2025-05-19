@@ -136,6 +136,8 @@ HPC 提供的超高性能，使得它在很多领域都有着广泛的应用。�
 
 ### 资源推荐
 
+- [thu-cs-lab/HPC-Lab-Docs 清华大学高性能计算导论实验文档](https://lab.cs.tsinghua.edu.cn/hpc/doc/)：作为国内超算课程建设的标杆，清华大学的 HPC 课程已经开设多年，积累了丰富的经验和资料。
+- [Linux 101 - USTC](https://101.lug.ustc.edu.cn/)：中科大拥有国内高校最大的 Linux User Group，其开设的 Linux 入门课程内容丰富，适合初学者。
 - [《并行程序设计导论》](https://book.douban.com/subject/20374756/)（An Introduction to Parallel Programming）
     - 很薄，介绍了 OpenMPI 和 OpenMP（Pthreads 我们不学，也基本不会接触到）。讲解的内容浅显易懂，适合快速入门。
 - Python 编程三剑客：从上至下，书籍难度逐渐递增。如果你对自己的编程能力不太自信，选择第一本书。如果你编程能力好，但没接触过 Python，可以选择第二本。如果你对 Python 有一定了解，非常推荐你直接从第三本开始做一些简单的项目。
