@@ -865,34 +865,34 @@ NFS 的主要特点包括：
 
 1. 在服务器上安装 NFS 服务器软件：
 
-   ```bash
-   sudo apt install nfs-kernel-server
-   ```
+    ```bash
+    sudo apt install nfs-kernel-server
+    ```
 
 2. 配置要共享的目录，编辑 `/etc/exports` 文件：
 
-   ```bash
-   /home 172.20.0.0/16(rw,sync,no_subtree_check)
-   ```
+    ```bash
+    /home 172.20.0.0/16(rw,sync,no_subtree_check)
+    ```
 
 3. 重启 NFS 服务：
 
-   ```bash
-   sudo exportfs -a
-   sudo systemctl restart nfs-kernel-server
-   ```
+    ```bash
+    sudo exportfs -a
+    sudo systemctl restart nfs-kernel-server
+    ```
 
 4. 在客户端安装 NFS 客户端软件：
 
-   ```bash
-   sudo apt install nfs-common
-   ```
+    ```bash
+    sudo apt install nfs-common
+    ```
 
 5. 在客户端挂载共享目录：
 
-   ```bash
-   sudo mount server_ip:/home /home
-   ```
+    ```bash
+    sudo mount server_ip:/home /home
+    ```
 
     确认成功挂载后可以写到 `/etc/fstab` 文件中，这样每次开机都会自动挂载。
 
