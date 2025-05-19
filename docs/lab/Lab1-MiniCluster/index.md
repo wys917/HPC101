@@ -44,12 +44,12 @@
         - \* 如果你通过虚拟机或物理机等方式进行实验，可以尝试利用 pxe 引导集群启动。
 
 - 软件安装：
-    - 下载 OpenMPI、CBLAS 和 HPL 的源代码并编译安装。
+    - 下载 OpenMPI、BLAS、CBLAS 和 HPL 的源代码并编译安装。
 
 !!! tip "Bonus"
 
-    - 使用 spack 包管理器安装 OpenMPI、CBLAS 和 HPL。
-        - 或者使用你喜欢的方式安装 OpenMPI、CBLAS 和 HPL。
+    - 你也可以尝试其它BLAS实现，如更新版本的[LAPACK](https://www.netlib.org/lapack/)，[OpenBLAS](http://www.openmathlib.org/OpenBLAS/)，[MKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html)，[AOCL](https://www.amd.com/en/developer/aocl.html)等, 并比较它们的性能。
+    - \* 使用 spack 包管理器安装 OpenMPI、BLAS 和 HPL。
 
 !!! warning "<del>不得不品的手动编译</del>"
     在编译安装过程中会出现各种各样的问题<del>这是预期内的</del>，我们鼓励你尝试解决这些问题，并记录下你尝试过的方法和解决方法。
