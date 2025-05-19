@@ -1,8 +1,8 @@
 # 实验一：简单集群搭建
 
-!!! warning "注意"
+!!! tip "QC PASS"
 
-    该实验还在修订中
+    该实验已经通过检查，请放心食用。
 
 ## 导言：计算机集群
 
@@ -488,7 +488,11 @@ flowchart LR
     make arch=Linux_PII_FBLAS
     ```
 
-    `Make.Linux_PII_FBLAS` 中需要修改的部分有（左侧为修改后，右侧为修改前）：
+    `Make.Linux_PII_FBLAS` 中需要修改的部分有   
+    !!! warning "注意"
+   
+        ⚠️⚠️ 修改仅供参考 ⚠️⚠️
+
 
     ```makefile
     TOPdir = $(HOME)/hpl-2.3        | TOPdir = $(HOME)/hpl
