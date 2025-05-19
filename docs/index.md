@@ -136,8 +136,6 @@ HPC 提供的超高性能，使得它在很多领域都有着广泛的应用。�
 
 ### 资源推荐
 
-- [《Linux 实战宝典》](https://zh.singlelogin.re/book/25214582/048350/linux%E5%AE%9E%E6%88%98%E5%AE%9D%E5%85%B8.html?dsource=recommend)
-    - 为什么不推荐鸟哥之类的书？因为他们基于 RHEL 类系统（RHEL、CentOS）等，目标是通过运维技术相关的考试，不适合我们。这本书对我们所需要的内容的讲解更加清晰易懂，符合我们的需求。
 - [《并行程序设计导论》](https://book.douban.com/subject/20374756/)（An Introduction to Parallel Programming）
     - 很薄，介绍了 OpenMPI 和 OpenMP（Pthreads 我们不学，也基本不会接触到）。讲解的内容浅显易懂，适合快速入门。
 - Python 编程三剑客：从上至下，书籍难度逐渐递增。如果你对自己的编程能力不太自信，选择第一本书。如果你编程能力好，但没接触过 Python，可以选择第二本。如果你对 Python 有一定了解，非常推荐你直接从第三本开始做一些简单的项目。
@@ -147,7 +145,7 @@ HPC 提供的超高性能，使得它在很多领域都有着广泛的应用。�
         - 项目推荐：从 Web 抓取信息，处理 CSV 文件和 JSON 数据，保持时间、计划任务和启动程序
     - [《Python 极客项目编程》](https://book.douban.com/subject/27050630/)（Python Playground: Geeky Projects for the Curious Programmer）
         - 项目推荐：模拟生命、图片之乐
-- [《Programming Massively Parallel Processors: A Hands-on Approach, 4th Edition》](https://zh.singlelogin.re/book/25394855/1ffed7/programming-massively-parallel-processors-a-handson-approach-4th-edition.html)
+- [《Programming Massively Parallel Processors: A Hands-on Approach, 4th Edition》](https://www.oreilly.com/library/view/programming-massively-parallel/9780323984638/)
     - CUDA 编程目前仍在活跃发展中，因此没有合适的中文书籍。要想学习到最新的 CUDA 技术，只能看英文书籍，而且要看最新版，超过 5 年的书籍均可能过时。
 
 ## 贡献
