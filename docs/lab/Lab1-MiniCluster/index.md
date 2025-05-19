@@ -44,16 +44,16 @@
         - \* 如果你通过虚拟机或物理机等方式进行实验，可以尝试利用 pxe 引导集群启动。
 
 - 软件安装：
-    - 下载 OpenMPI、BLAS 和 HPL 的源代码并编译安装。
+    - 下载 OpenMPI、CBLAS 和 HPL 的源代码并编译安装。
 
 !!! tip "Bonus"
 
-    - 使用 spack 包管理器安装 OpenMPI、BLAS 和 HPL。
-        - 或者使用你喜欢的方式安装 OpenMPI、BLAS 和 HPL。
+    - 使用 spack 包管理器安装 OpenMPI、CBLAS 和 HPL。
+        - 或者使用你喜欢的方式安装 OpenMPI、CBLAS 和 HPL。
 
 !!! warning "<del>不得不品的手动编译</del>"
     在编译安装过程中会出现各种各样的问题<del>这是预期内的</del>，我们鼓励你尝试解决这些问题，并记录下你尝试过的方法和解决方法。
-    除了必须手动编译安装指定的BLAS和HPL外，我们还鼓励你尝试使用其他方式安装HPL，可以在报告中记录你尝试过的方法。
+    除了必须手动编译安装指定的CBLAS和HPL外，我们还鼓励你尝试使用其他方式安装HPL，可以在报告中记录你尝试过的方法。
 
 - 性能测试：在虚拟机/容器集群上使用 OpenMPI 运行 CPU 上的 HPL 性能测试，记录测试结果。
 
@@ -419,8 +419,8 @@ flowchart LR
     - 解压源码，进入源码目录，阅读 `README.md`。
     - 前往在线文档，查看构建和安装部分，按文档指示构建并安装 OpenMPI。
     - 验证安装是否成功。提示：运行 `ompi_info -all`。
-- 构建 BLAS：
-    - 前往 [BLAS 官网](http://www.netlib.org/blas/)下载最新版本源码。
+- 构建 CBLAS：
+    - 下载指定版本 CBLAS 源码：[CBLAS.tgz](./assets/CBLAS.tgz)。
     - 解压源码，进入源码目录。因为这是一个简单的库不是应用程序，所以这次没有 `README` 了。你发现有 `Makefile`，直接构建即可。
     - 如果没有错误，目录中会生成一个 `.a` 文件，这是待会要用到的静态链接库。
 
@@ -471,7 +471,8 @@ flowchart LR
     wget "http://www.netlib.org/blas/blas-3.12.0.tgz"
     tar xvf blas-3.12.0.tgz
     cd BLAS-3.12.0
-    make
+    make 
+    # 注意， 这不是我们需要的 CBLAS， 安装过程仅供参考
     ```
 
     - HPL
@@ -742,7 +743,7 @@ LU 分解完成后，HPL 使用回代求解 $x$，并验证解的正确性。
 
         WORKDIR /opt
 
-        # 编译安装 MPI，BLAS，HPL 等等
+        # 编译安装 MPI，CBLAS，HPL 等等
 
         # to be filled
 
