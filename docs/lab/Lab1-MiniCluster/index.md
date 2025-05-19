@@ -838,7 +838,7 @@ flowchart LR
 
     Bonus 任务是一些比较有挑战性的任务，**选做**。我们鼓励大家尝试完成。在实验报告中记录你对于 Bonus 任务尝试过的解决方法，将根据完成度获得该次实验的加分。
 
-    其中，加星标 (`*`) 的 Bonus 任务难度较大（或者与课程主线无关），完成其中的 1 至 2 个便能证明你的实力。加星标的任务**仅作为选拔超算队新成员的依据，不参与课程评价和实验加分**。欢迎希望加入超算队的同学挑战它们。
+    其中，加星标 (`*`) 的 Bonus 任务难度较大，完成其中的 1 至 2 个便能证明你的实力。加星标的任务**仅作为选拔超算队新成员的依据，不参与课程评价和实验加分**。欢迎希望加入超算队的同学挑战它们。
     
     Lab1 在课程开始后还会再提交一次，你还可以利用期末考试后至开课前期的空闲时间继续补充自己尝试的内容。
 
@@ -858,7 +858,7 @@ flowchart LR
 !!! tip "Bonus"
 
     - 你也可以尝试其它 BLAS 实现，如更新版本的 [LAPACK](https://www.netlib.org/lapack/)，[OpenBLAS](http://www.openmathlib.org/OpenBLAS/)，[MKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html)，[AOCL](https://www.amd.com/en/developer/aocl.html) 等, 并比较它们的性能。
-    - **(\*)** 使用 spack 包管理器安装 OpenMPI、多种 BLAS 并 相应编译多种 HPL。
+    - 使用 spack 包管理器安装 OpenMPI、多种 BLAS 并 相应编译多种 HPL。
 
 
 ## 技术杂谈
