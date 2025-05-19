@@ -2,7 +2,7 @@
 
 !!! tip "QC PASS"
 
-    该实验已经通过检查，请放心食用。
+    本实验流程已经通过检查，请放心食用。
 
 ## 导言：计算机集群
 
@@ -22,68 +22,14 @@
     - 任务部分需要自行完成，请遵守诚信守则。
     - 和 Lab 0 一样，如果你对这些内容轻车熟路，就不需要阅读知识讲解，直接完成任务即可。
 
-### 具体任务
-
-- 集群搭建：
-    - 选择一 使用虚拟机：克隆虚拟机、配置虚拟机互联、测试节点间通信。
-    - 选择二 使用容器：创建多个容器实例，配置容器间互联、测试容器间通信。
-        `更适用于本地内存不足的同学`
-    - 选择三 使用你喜欢的方式产生Linux集群，并测试集群间通信。
-
-!!! tip "任选一种你喜欢的集群搭建方式即可"
-
-    我们不对集群搭建的方式做硬性限制，你可以使用虚拟机、容器、物理机、开发板等任何方式搭建集群，但是注意有以下要求：
-
-    - 至少有4个在线节点。
-    - 节点之间能够通过 ssh 进行互联。MPI 能正常工作。
-    !!! tip "Bonus"
-        - 正确为每台机器设置主机名，并能从主机名解析出 IP 地址。
-        - 通过 NFS 或其他共享文件系统，实现集群间文件共享。
-        - \* 通过 nis 或 ldap 等方法实现集群间用户（组）共享和管理。
-        - \* 选择你喜欢的节点指标，日志收集，监控等方法，并利用 grafana 等工具进行可视化。
-        - \* 如果你通过虚拟机或物理机等方式进行实验，可以尝试利用 pxe 引导集群启动。
-
-- 软件安装：
-    - 下载 OpenMPI、BLAS、CBLAS 和 HPL 的源代码并编译安装。
-
-!!! tip "Bonus"
-
-    - 你也可以尝试其它BLAS实现，如更新版本的[LAPACK](https://www.netlib.org/lapack/)，[OpenBLAS](http://www.openmathlib.org/OpenBLAS/)，[MKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html)，[AOCL](https://www.amd.com/en/developer/aocl.html)等, 并比较它们的性能。
-    - \* 使用 spack 包管理器安装 OpenMPI、BLAS 和 HPL。
-
-!!! warning "<del>不得不品的手动编译</del>"
-    在编译安装过程中会出现各种各样的问题<del>这是预期内的</del>，我们鼓励你尝试解决这些问题，并记录下你尝试过的方法和解决方法。
-    除了必须手动编译安装指定的BLAS和HPL外，我们还鼓励你尝试使用其他方式安装HPL，可以在报告中记录你尝试过的方法。
-
-- 性能测试：在虚拟机/容器集群上使用 OpenMPI 运行 CPU 上的 HPL 性能测试，记录测试结果。
-
-!!! warning "性能优化"
-
-    在完成基本的 HPL 测试后，你可以尝试通过以下方法提高性能：
-
-    1. 调整 HPL.dat 参数：
-        - 调整问题规模 N 以充分利用内存
-        - 调整分块大小 NB 以优化计算效率
-        - 调整 P×Q 进程网格布局以匹配集群拓扑
-
-    2. 编译优化：
-        - 更换编译器
-        - 修改编译优化选项
-        - 尝试更换 BLAS 库
-
-    4. 运行环境优化：
-        - 优化 OpenMP 绑核参数
-        - 调整 MPI 进程绑定，rank 拓扑
-
-    请记录你尝试过的优化方法及其效果，分析性能提升的原因。性能的绝对值不作为评判依据，重要的是你通过哪些方法提高了性能，以及你对这些优化方法的理解。
-
-!!! warning "Bonus"
-
-    加`*`的 Bonus 任务难度较大，欢迎希望加入超算队的同学尝试完成。Lab1 在课程开始后还会再提交一次，你可以利用开课前期的空闲时间继续完成。如果你未能成功完成，也欢迎你在报告中记录下你尝试过的方法和解决方法。
-
 ### 提交内容
 
-1. 实验报告 PDF 文件
+总的来说，你需要先阅读 **知识讲解** 部分，然后逐个完成 **任务** 部分，并将自己完成的过程记录在实验报告中。你需要提交以下的内容：
+
+1. 使用中文完成的实验报告 PDF 文件，内容至少包括下面的过程:
+    - 软件安装：下载 OpenMPI、BLAS 和 HPL 的源代码并编译安装。
+    - 集群搭建：使用虚拟机 / Docker 容器等方式构建集群，配置节点间互联、测试节点间通信。
+    - 性能测试：在虚拟机集群上使用 OpenMPI 运行 HPL 性能测试，记录测试结果。
 2. HPL 输出结果文本文件
 3. 如果修改了代码，请提交修改后的代码和一份修改说明。
 
@@ -398,13 +344,150 @@ Angband 也提供了 CMake 的构建方式。查看 Angband 在线文档，你�
 
 你应该能看到 `Angband` 程序直接生成在该目录下，同时 `lib` 等必要的目录也被拷贝了一份。这种构建方式不会污染源代码目录，是一种比较好的实践。
 
+## 知识讲解：集群环境搭建与配置
+
+!!! tip "前置知识"
+
+    掌握 Lab0 中的内容：虚拟机、网络、SSH。
+
+### 集群节点间的连接与互访
+
+计算机之间通过网络连接。在网络中，有两个重要的地址：MAC 地址和 IP 地址。通过 Lab 0 的学习，你应该理解了这两种地址如何通过 ARP 协议联系在一起，也理解了虚拟机中的 NAT 网络。做任务时，你需要克隆虚拟机。克隆出来的新虚拟机的 MAC 地址与原来的虚拟机相同。思考一下，如果同时启动这两台虚拟机，它们能正常通信吗？你可以参考 [Duplicate MAC address on the same LAN possible? - StackExchange](https://serverfault.com/questions/462178/duplicate-mac-address-on-the-same-lan-possible)。
+
+[计算机集群（Cluster）](https://en.wikipedia.org/wiki/Computer_cluster)是连接在一起、协同工作的一组计算机，集群中的每个计算机都是一个节点。在集群中，由软件将不同的计算任务（task）分配（schedule）到相应的一个或一群节点（node）上。通常会有一个节点作为主节点（master/root node），其他节点作为从节点（slave node）。主节点负责调度任务（当然也可能负责执行部分任务），从节点负责执行任务。此外，也通常会有一个共享的文件系统，用于存储任务数据和结果，这些技术将在[第三部分](#NFS)介绍。
+
+<figure markdown="span">
+![cluster](image/cluster.webp)
+<figcaption>计算机集群的协作<br /><small>来源：<a href="https://www.geeksforgeeks.org/an-overview-of-cluster-computing/">An Overview of Cluster Computing - GeeksforGeeks</a></small></figcaption>
+</figure>
+
+在 Lab 0 中，我们已经学习了如何通过 SSH 使用密码访问虚拟机。在集群中，节点之间的互访往往也通过 SSH 完成，但要求无交互（non-interactive）。想要实现无需输入密码就能互相认证，就需使用 SSH 的密钥认证（key-based authentication）。
+
+SSH 密钥认证基于密码学中的非对称加密算法。在 SSH 密钥认证中，用户有两个密钥：私钥（private key）和公钥（public key），它们一一配对：用私钥加密的数据，只有用对应的公钥才能解密，同理，用公钥加密的数据，只有用对应的私钥才能解密。**私钥只有用户自己知道，公钥可以公开**。
+
+所谓配置 SSH 密钥认证，就是让服务器信任该公钥，允许持有该私钥的用户连接。(对这一过程感兴趣的同学，可以阅读下面的简单介绍。)
+
+???- note "SSH 密钥认证的原理"
+
+    用户可以将公钥放在服务器上，当用户连接服务器时，服务器会用公钥加密一个随机数发送给用户，用户用私钥加密这个随机数，然后用这个随机数加密数据发送给服务器，服务器用公钥解密数据。根据非对称加密的原理，如果用户能够成功加密，则说明用户拥有该私钥，这样就验证了用户的身份，连接可以成功建立。
+
+    <figure markdown="span">
+    ![ssh](image/ssh.webp){ style="background-color: white;" }
+    <figcaption>SSH 密钥认证<br /><small>来源：[How SSH encrypts communications, when using password-based authentication? - StackOverflow](https://stackoverflow.com/questions/59555705/how-ssh-encrypts-communications-when-using-password-based-authentication)</small></figcaption>
+    </figure>
+
+在集群中，我们需要在主节点中生成密钥对，将主节点的公钥放在从节点上，这样主节点就能够通过 SSH 密钥认证连接到从节点。你可以阅读 [How To Configure SSH Key-Based Authentication on a Linux Server - DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server) 了解如何配置 SSH 密钥认证。基本操作如下：
+
+```bash
+ssh-keygen -t ed25519 # 生成密钥对，使用 ed25519 算法 (强烈推荐)
+ssh-copy-id user@hostname # 将公钥放在服务器上
+```
+
+需要注意的是，认证基于用户。不是说主节点可以连接到从节点，而应当说主节点上的某个用户可以连接到从节点上的某个用户。如果在主节点上为 `root` 用户生成密钥对，却在从节点上将公钥放置进 `test` 用户的 `.ssh/authorized_keys` 文件中，那么显然无法以密钥认证的方式登录到从节点的 `root` 用户。
+
+### MPI: 一个程序如何在不同机器间通信
+
+MPI 指的是 [Message Passing Interface](http://www.mpi-forum.org/)，是程序在不同机器间发送、接收数据的接口标准，类似于定义了一套通信的 API。它被设计用于支持并行计算系统的架构，使得开发者能够方便地开发可移植的消息传递程序。MPI 编程能力在高性能计算的实践与学习中也是非常基础的技能。
+
+而 OpenMPI 是一个开源的 MPI 标准的实现，由一些科研机构和企业一起开发和维护。在接下来的任务中，我们需要编译安装 OpenMPI。
+
+`mpirun` 是 OpenMPI 提供的 MPI 启动程序，负责在指定的节点上启动 MPI 程序，此后程序间的通信由 MPI 库负责。可以为 `mpirun` 指定参数，比如启动的进程数、启动的节点等。阅读 [10.1. Quick start: Launching MPI applications - OpenMPI main documentation](https://docs.open-mpi.org/en/main/launching-apps/quickstart.html) 和 [10.6. Launching with SSH - OpenMPI main documentation](https://docs.open-mpi.org/en/main/launching-apps/ssh.html)，了解如何使用 `mpirun` 通过 SSH 的方式启动 OpenMPI 程序，如何指定启动的节点和进程数，如何指定工作路径。
+
+!!! question "回答以下问题"
+
+    - 如何为 `mpirun` 指定节点和进程数？
+    - 如何为 `mpirun` 指定工作路径？
+    - 如果不指定工作路径，`mpirun` 会在哪个路径启动程序？如何验证你的答案。
+
+    ??? success "Check your answer"
+
+        - 一般使用 `--hostfile` 和 hostfile 一起指定节点和进程数。OpenMPI 的 hostfile 的格式如下：
+
+            ```text title="hostfile"
+            node1 slots=4
+            node2 slots=4
+            ```
+
+            这个 hostfile 描述了有两个节点的集群，每个节点使用 4 个核心。
+
+        - 使用 `--wdir` 指定工作路径。如果未指定，尝试 `mpirun` 执行时的工作路径。若路径不存在，为 `$HOME`。你可以通过 `mpirun ls` 来尝试验证。
+
+!!! note "使用 `mpirun` 在集群中运行 MPI 程序，可以指定节点、进程数和工作路径等。"
+
+### 性能测试 Benchmark
+
+[HPL](https://www.netlib.org/benchmark/hpl/)（high performance Linpack）是评测计算系统性能的程序，是早期 [Linpack](https://www.netlib.org/linpack/) 评测程序的并行版本，支持大规模并行超级计算系统。其报告的每秒浮点运算次数（floating-point operations per second，简称 FLOPS）是世界超级计算机 Top500 列表排名的依据。
+
+BLAS 是 Basic Linear Algebra Subprograms 的缩写，是一组用于实现基本线性代数运算的函数库。HPL 使用 BLAS 库来实现矩阵运算，因此需要 BLAS 库的支持。
+
+!!! note "HPL 通过求解线性系统来评估计算机集群的浮点性能"
+
+如果你对 HPL 的算法细节感兴趣，可以展开阅读下面的内容。
+
+???- note "HPL 的算法细节"
+
+    HPL 算法使用 64 位浮点精度矩阵行偏主元 LU 分解加回代求解线性系统。矩阵是稠密实矩阵，矩阵单元由伪随机数生成器产生，符合正态分布。
+
+    线性系统定义为：
+
+    $$
+    Ax=b; A\in R^{N\times N}; x, b \in R^N
+    $$
+
+    行偏主元 LU 分解 $N×(N+1)$ 系数矩阵 $[A,b]$：
+
+    $$
+    P_r[A,b] = [[L\cdot U], y];
+    P_r, L, U \in R^{N\times N}; y \in R^N
+    $$
+
+    其中，$P_r$ 表示行主元交换矩阵，分解过程中下三角矩阵因子 $L$ 已经作用于 $b$，解 $x$ 通过求解上三角矩阵系统得到：
+
+    $$
+    Ux=y
+    $$
+
+    HPL 采用分块 LU 算法，每个分块是一个 $NB$ 列的细长矩阵，称为 panel。LU 分解主循环采用 right-looking 算法，单步循环计算 panel 的 LU 分解和更新剩余矩阵。基本算法如下图所示，其中 $A_{1,1}$ 和 $A_{2,1}$ 表示 panel 数据。需要特别说明的是，图示矩阵是行主顺序，HPL 代码中矩阵是列主存储的。
+
+    <figure markdown="span">
+    ![hpl_1](image/hpl_1.webp){ width=80% }
+    <figcaption>分块 LU 算法<br /><small>来源：<a href="https://kns.cnki.net/kcms2/article/abstract?v=qwZretP9BaHvUBwZiPjDpzt_KPtU2PXJSK0YVwCUYeCUQFlgxSAJKvStsXKUQgi7vp0dzvK1lhS5OYFXUgXXdKGZL9ljRGRsbRhmjx411BBN35dOaoxrEhTaj2fwikpGLUS9jtc7unQ=&uniplatform=NZKPT&language=CHS">复杂异构计算系统 HPL 的优化</a></small></figcaption>
+    </figure>
+
+    计算公式如下：
+
+    $$
+    \begin{aligned}
+    \left [\frac{L_{1,1}}{L_{2,1}}, U_{1,1} \right ] &= LU(\frac{A_{1,1}}{A_{2,1}}) \\
+    U_{1,2} &= L_{1,1}^{-1}A_{1,2} \\
+    A_{2,2}^{update} &= A_{2,2} - L_{2,1}U_{1,2}
+    \end{aligned}
+    $$
+
+    第 1 个公式表示 panel 的 LU 分解，第 2 个公式表示求解 $U$，一般使用 `DTRSM` 函数，第 3 个公式表示矩阵更新，一般使用 `DGEMM` 函数。
+
+    对于分布式内存计算系统，HPL 并行计算模式基于 MPI，每个进程是基本计算单元。进程组织成二维网格。矩阵 A 被划分为 $NB×NB$ 的逻辑块，以 Block-Cycle 方式分配到二维进程网格，数据布局示例如图所示。
+
+    <figure markdown="span">
+    ![hpl_2](image/hpl_2.webp)
+    <figcaption>进程网格和数据布局<br /><small>来源：<a href="https://kns.cnki.net/kcms2/article/abstract?v=qwZretP9BaHvUBwZiPjDpzt_KPtU2PXJSK0YVwCUYeCUQFlgxSAJKvStsXKUQgi7vp0dzvK1lhS5OYFXUgXXdKGZL9ljRGRsbRhmjx411BBN35dOaoxrEhTaj2fwikpGLUS9jtc7unQ=&uniplatform=NZKPT&language=CHS">复杂异构计算系统 HPL 的优化</a></small></figcaption>
+    </figure>
+
+    对于具有多列的进程网格，单步循环只有一列进程执行 panel 分解计算，panel 分解过程中每一列执行一次 panel 的行交换算法选择并通信最大主元行。Panel 分解计算完成后，把已分解数据广播到其他进程列。HPL 基础代码包含 6 类广播算法，可以通过测试选择较优的算法。
+
+    HPL 采用行主元算法，单步矩阵更新之前，要把 panel 分解时选出的最大主元行交换到 $U$ 矩阵中，需要执行未更新矩阵的主元行交换和广播。主元行交换和广播后，每个进程获得完整的主元行数据。
+
+    矩阵更新包括两部分计算，一是使用 `DTRSM` 求解 $U$，二是使用 `DGEMM` 更新矩阵数据。
+
+    LU 分解完成后，HPL 使用回代求解 $x$，并验证解的正确性。
+
 ## 任务一：从源码构建 OpenMPI 和 HPL
 
 !!! note "学习 Makefile 基本语法"
 
     过程中你会遇到需要修改 `Makefile` 的步骤，因此希望你了解 `Makefile` 的基本语法。这一内容本应在 C 语言课程中完成讲授，不过大部分老师都省略了这部分。所以如果你没有学过，可以参考 [:simple-bilibili: Makefile 20 分钟入门 - 南方科技大学计算机系](https://www.bilibili.com/video/BV188411L7d2)进行学习。
 
-!!! tip "提醒：认真看文档，看不懂的地方可以搜索 / 问 GPT / 问助教。"
+!!! tip "提醒：完成任务时请认真阅读文档，看不懂的地方可以搜索 / 问 GPT / 问助教。"
 
 这几个项目的依赖关系是：
 
@@ -414,17 +497,21 @@ flowchart LR
     A[HPL] --> C[OpenMPI]
 ```
 
+因此，你需要先编译 OpenMPI，BLAS 和 CBLAS，然后再编译依赖他们的 HPL。
+
 - 构建并安装 OpenMPI：
-    - 前往 [OpenMPI 官网](https://www.open-mpi.org/software/ompi/)下载最新版本源码。
+    - 前往 [OpenMPI 官网](https://www.open-mpi.org/software/ompi/) 下载最新版本源码。
     - 解压源码，进入源码目录，阅读 `README.md`。
-    - 前往在线文档，查看构建和安装部分，按文档指示构建并安装 OpenMPI。
+    - 前往在线文档，查看[构建和安装部分](https://docs.open-mpi.org/en/v5.0.x/installing-open-mpi/quickstart.html)，按文档指示构建并安装 OpenMPI。
     - 验证安装是否成功。提示：运行 `ompi_info -all`。
 - 构建 BLAS，CBLAS：
-    - 下载指定版本 BLAS 源码 [blas-3.12.0.tgz](./assets/blas-3.12.0.tgz), 并完成构建。
-    - 下载指定版本 CBLAS 源码：[CBLAS.tgz](./assets/CBLAS.tgz)。相应修改 `Makefile.in` 后完成构建
+    - 下载指定版本 BLAS 源码: [blas-3.12.0.tgz](./assets/blas-3.12.0.tgz), 并完成构建。
+    - 下载指定版本 CBLAS 源码: [CBLAS.tgz](./assets/CBLAS.tgz)。相应修改 `Makefile.in` 后完成构建
     - 如果没有错误，两个目录中都会生成一个 `.a` 文件，这是待会要用到的静态链接库。
 
+<figure markdown="span">
 ![BLAS](image/blas.webp){ width=50% }
+</figure>
 
 - 构建 HPL：
     - 前往 [HPL 官网](https://netlib.org/benchmark/hpl/software.html)，下载最新版本源码。
@@ -432,7 +519,13 @@ flowchart LR
     - 按文档指示构建 HPL。提示：上面的 BLAS 被称为 FBLAS，以与 CBLAS 区分。
     - 如果没有错误，可以按文档中的描述找到 `xhpl` 可执行文件。
 
-如果你遇到了无法解决的困难，可以参考下面的解答和说明。如果还是无法解决，请向我们反馈。
+!!! warning "不得不品的手动编译"
+    在编译安装过程中会出现各种各样的问题，因为某些项目的源代码更新不频繁，可能在新的环境中无法正常编译，这是很常见的现象。
+    因此，即使有很多自动化编译安装的方法，我们还是希望你能够亲自动手编译安装这些项目。
+    
+    遇到问题时，你可以借助搜索引擎、StackOverflow 以及 AI 工具，尝试解决它们。
+
+    如果你遇到了无法解决的困难，可以参考下面的解答和说明。如果还是无法解决，请向我们反馈。
 
 ??? success "步骤参考及说明"
 
@@ -491,7 +584,7 @@ flowchart LR
     `Make.Linux_PII_FBLAS` 中需要修改的部分有   
     !!! warning "注意"
    
-        ⚠️⚠️ 修改仅供参考 ⚠️⚠️
+        **修改仅供参考**, 请根据你的实际情况进行修改。
 
 
     ```makefile
@@ -510,131 +603,16 @@ flowchart LR
     HPL.dat  xhpl
     ```
 
-## 知识讲解：集群环境搭建与配置
+## 任务二：搭建集群并使用 HPL 测试性能
 
-!!! tip "前置知识"
+!!! tip "任选一种你喜欢的集群搭建方式即可"
 
-    掌握 Lab0 中的内容：虚拟机、网络、SSH。
+    我们不对集群搭建的方式做硬性限制，只需注意有以下要求：
 
-### 集群节点间的连接与互访
+    - 至少有 4 个在线节点。
+    - 节点之间能够通过 ssh 进行互联。MPI 能正常工作。
 
-计算机之间通过网络连接。在网络中，有两个重要的地址：MAC 地址和 IP 地址。通过 Lab0 的学习，你应该理解了这两种地址如何通过 ARP 协议联系在一起，也理解了虚拟机中的 NAT 网络。做任务时，你需要克隆虚拟机。克隆出来的新虚拟机的 MAC 地址与原来的虚拟机相同。思考一下，如果同时启动这两台虚拟机，它们能正常通信吗？你可以参考 [Duplicate MAC address on the same LAN possible? - StackExchange](https://serverfault.com/questions/462178/duplicate-mac-address-on-the-same-lan-possible)。
-
-[计算机集群（Cluster）](https://en.wikipedia.org/wiki/Computer_cluster)是连接在一起、协同工作的一组计算机，集群中的每个计算机都是一个节点。在集群中，由软件将不同的计算任务（task）分配（schedule）到相应的一个或一群节点（node）上。通常会有一个节点作为主节点（master/root node），其他节点作为从节点（slave node）。主节点负责调度任务（当然也可能负责执行部分任务），从节点负责执行任务。此外，也通常会有一个共享的文件系统，用于存储任务数据和结果，这些技术将在第三部分介绍。
-
-<figure markdown="span">
-![cluster](image/cluster.webp)
-<figcaption>计算机集群的协作<br /><small>来源：<a href="https://www.geeksforgeeks.org/an-overview-of-cluster-computing/">An Overview of Cluster Computing - GeeksforGeeks</a></small></figcaption>
-</figure>
-
-在 Lab 0 中，我们已经学习了如何通过 SSH 使用密码访问虚拟机。在集群中，节点之间的互访往往也通过 SSH 完成，但要求无交互（non-interactive），这就需要使用 SSH 的密钥认证（key-based authentication）。
-
-!!! note "SSH 密钥认证的原理"
-
-    SSH 密钥认证基于密码学中的非对称加密算法。在 SSH 密钥认证中，用户有两个密钥：私钥（private key）和公钥（public key），它们一一配对。私钥只有用户自己知道，公钥可以公开。私钥能够加密数据，公钥能够解密数据。用户可以将公钥放在服务器上，当用户连接服务器时，服务器会用公钥加密一个随机数发送给用户，用户用私钥加密这个随机数，然后用这个随机数加密数据发送给服务器，服务器用公钥解密数据。如果用户能够成功加密，说明用户拥有私钥，连接成功。
-    <figure markdown="span">
-    ![ssh](image/ssh.webp){ style="background-color: white;" }
-    <figcaption>SSH 密钥认证<br /><small>来源：[How SSH encrypts communications, when using password-based authentication? - StackOverflow](https://stackoverflow.com/questions/59555705/how-ssh-encrypts-communications-when-using-password-based-authentication)</small></figcaption>
-    </figure>
-
-所谓配置 SSH 密钥认证，就是让服务器信任该公钥，允许持有该私钥的用户连接。在集群中，我们需要在主节点中生成密钥对，将主节点的公钥放在从节点上，这样主节点就能够通过 SSH 密钥认证连接到从节点。你可以阅读 [How To Configure SSH Key-Based Authentication on a Linux Server - DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server) 了解如何配置 SSH 密钥认证。基本操作如下：
-
-```bash
-ssh-keygen -t ed25519 # 生成密钥对，使用 ed25519 算法
-ssh-copy-id user@hostname # 将公钥放在服务器上
-```
-
-需要注意的是，认证基于用户。不是说主节点可以连接到从节点，而应当说主节点上的某个用户可以连接到从节点上的某个用户。如果在主节点上为 `root` 用户生成密钥对，却在从节点上将公钥放置进 `test` 用户的 `.ssh/authorized_keys` 文件中，那么显然无法以密钥认证的方式登录到从节点的 `root` 用户。
-
-### MPI 的运行方式
-
-OpenMPI 是一个开源的 [Message Passing Interface](http://www.mpi-forum.org/) 实现，由一些科研机构和企业一起开发和维护。MPI 是一套标准化、可移植的消息传递标准，它被设计用于支持并行计算系统的架构，使得开发者能够方便地开发可移植的消息传递程序。同时，MPI 编程能力在高性能计算的实践与学习中也是非常基础的技能。
-
-`mpirun` 是 OpenMPI 提供的 MPI 启动程序，负责在指定的节点上启动 MPI 程序，此后程序间的通信由 MPI 库负责。可以为 `mpirun` 指定参数，比如启动的进程数、启动的节点等。阅读 [10.1. Quick start: Launching MPI applications - OpenMPI main documentation](https://docs.open-mpi.org/en/main/launching-apps/quickstart.html) 和 [10.6. Launching with SSH - OpenMPI main documentation](https://docs.open-mpi.org/en/main/launching-apps/ssh.html)，了解如何使用 `mpirun` 通过 SSH 的方式启动 OpenMPI 程序，如何指定启动的节点和进程数，如何指定工作路径。
-
-!!! question "回答以下问题"
-
-    - 如何为 `mpirun` 指定节点和进程数？
-    - 如何为 `mpirun` 指定工作路径？
-    - 如果不指定工作路径，`mpirun` 会在哪个路径启动程序？如何验证你的答案。
-
-    ??? note "Check your answer"
-
-        - 一般使用 `--hostfile` 和 hostfile 一起指定节点和进程数，其中 hostfile 的格式如下：
-
-            ```text title="hostfile"
-            node1 slots=4
-            node2 slots=4
-            ```
-
-        - 使用 `--wdir` 指定工作路径。如果未指定，尝试 `mpirun` 执行时的工作路径。若路径不存在，为 `$HOME`。你可以通过 `mpirun ls` 来尝试验证。
-
-!!! note "使用 `mpirun` 在集群中运行 MPI 程序，可以指定节点、进程数和工作路径等。"
-
-### 性能测试 Benchmark
-
-[HPL](https://www.netlib.org/benchmark/hpl/)（high performance Linpack）是评测计算系统性能的程序，是早期 [Linpack](https://www.netlib.org/linpack/) 评测程序的并行版本，支持大规模并行超级计算系统。其报告的每秒浮点运算次数（floating-point operations per second，简称 FLOPS）是世界超级计算机 Top500 列表排名的依据。
-
-BLAS 是 Basic Linear Algebra Subprograms 的缩写，是一组用于实现基本线性代数运算的函数库。HPL 使用 BLAS 库来实现矩阵运算，因此需要 BLAS 库的支持。
-
-HPL 算法使用 64 位浮点精度矩阵行偏主元 LU 分解加回代求解线性系统。矩阵是稠密实矩阵，矩阵单元由伪随机数生成器产生，符合正态分布。
-
-线性系统定义为：
-
-$$
-Ax=b; A\in R^{N\times N}; x, b \in R^N
-$$
-
-行偏主元 LU 分解 $N×(N+1)$ 系数矩阵 $[A,b]$：
-
-$$
-P_r[A,b] = [[L\cdot U], y];
-P_r, L, U \in R^{N\times N}; y \in R^N
-$$
-
-其中，$P_r$ 表示行主元交换矩阵，分解过程中下三角矩阵因子 $L$ 已经作用于 $b$，解 $x$ 通过求解上三角矩阵系统得到：
-
-$$
-Ux=y
-$$
-
-HPL 采用分块 LU 算法，每个分块是一个 $NB$ 列的细长矩阵，称为 panel。LU 分解主循环采用 right-looking 算法，单步循环计算 panel 的 LU 分解和更新剩余矩阵。基本算法如下图所示，其中 $A_{1,1}$ 和 $A_{2,1}$ 表示 panel 数据。需要特别说明的是，图示矩阵是行主顺序，HPL 代码中矩阵是列主存储的。
-
-<figure markdown="span">
-![hpl_1](image/hpl_1.webp){ width=80% }
-<figcaption>分块 LU 算法<br /><small>来源：<a href="https://kns.cnki.net/kcms2/article/abstract?v=qwZretP9BaHvUBwZiPjDpzt_KPtU2PXJSK0YVwCUYeCUQFlgxSAJKvStsXKUQgi7vp0dzvK1lhS5OYFXUgXXdKGZL9ljRGRsbRhmjx411BBN35dOaoxrEhTaj2fwikpGLUS9jtc7unQ=&uniplatform=NZKPT&language=CHS">复杂异构计算系统 HPL 的优化</a></small></figcaption>
-</figure>
-
-计算公式如下：
-
-$$
-\begin{aligned}
-\left [\frac{L_{1,1}}{L_{2,1}}, U_{1,1} \right ] &= LU(\frac{A_{1,1}}{A_{2,1}}) \\
-U_{1,2} &= L_{1,1}^{-1}A_{1,2} \\
-A_{2,2}^{update} &= A_{2,2} - L_{2,1}U_{1,2}
-\end{aligned}
-$$
-
-第 1 个公式表示 panel 的 LU 分解，第 2 个公式表示求解 $U$，一般使用 `DTRSM` 函数，第 3 个公式表示矩阵更新，一般使用 `DGEMM` 函数。
-
-对于分布式内存计算系统，HPL 并行计算模式基于 MPI，每个进程是基本计算单元。进程组织成二维网格。矩阵 A 被划分为 $NB×NB$ 的逻辑块，以 Block-Cycle 方式分配到二维进程网格，数据布局示例如图所示。
-
-<figure markdown="span">
-![hpl_2](image/hpl_2.webp)
-<figcaption>进程网格和数据布局<br /><small>来源：<a href="https://kns.cnki.net/kcms2/article/abstract?v=qwZretP9BaHvUBwZiPjDpzt_KPtU2PXJSK0YVwCUYeCUQFlgxSAJKvStsXKUQgi7vp0dzvK1lhS5OYFXUgXXdKGZL9ljRGRsbRhmjx411BBN35dOaoxrEhTaj2fwikpGLUS9jtc7unQ=&uniplatform=NZKPT&language=CHS">复杂异构计算系统 HPL 的优化</a></small></figcaption>
-</figure>
-
-对于具有多列的进程网格，单步循环只有一列进程执行 panel 分解计算，panel 分解过程中每一列执行一次 panel 的行交换算法选择并通信最大主元行。Panel 分解计算完成后，把已分解数据广播到其他进程列。HPL 基础代码包含 6 类广播算法，可以通过测试选择较优的算法。
-
-HPL 采用行主元算法，单步矩阵更新之前，要把 panel 分解时选出的最大主元行交换到 $U$ 矩阵中，需要执行未更新矩阵的主元行交换和广播。主元行交换和广播后，每个进程获得完整的主元行数据。
-
-矩阵更新包括两部分计算，一是使用 `DTRSM` 求解 $U$，二是使用 `DGEMM` 更新矩阵数据。
-
-LU 分解完成后，HPL 使用回代求解 $x$，并验证解的正确性。
-
-!!! note "HPL 通过求解线性系统来评估计算机集群的浮点性能"
-
-## 任务二：使用 HPL 测试集群的性能
+    你可以从下面的几种方式中任选一种，也可以使用其他方式。
 
 === "使用虚拟机搭建集群"
     - 连接与互访：
@@ -749,7 +727,7 @@ LU 分解完成后，HPL 使用回代求解 $x$，并验证解的正确性。
 
         WORKDIR /opt
 
-        # 编译安装 MPI，CBLAS，HPL 等等
+        # 这里需要你手动填写指令，来完成 MPI，CBLAS，HPL 的安装
 
         # to be filled
 
@@ -831,7 +809,59 @@ LU 分解完成后，HPL 使用回代求解 $x$，并验证解的正确性。
 === "使用你喜欢的方式搭建集群"
      如果你觉得这两种方法都不适合你，请使用你喜欢的方式搭建集群，并完成 HPL 测试。
 
-## 知识讲解：技术杂谈
+## Bonus 任务
+
+!!! warning "Bonus 任务是什么?"
+
+    Bonus 任务是一些比较有挑战性的任务，**选做**。我们鼓励大家尝试完成。在实验报告中记录你对于 Bonus 任务尝试过的解决方法，将根据完成度获得该次实验的加分。
+
+    其中，加星标 (`*`) 的 Bonus 任务难度较大，完成其中的 1 至 2 个便能证明你的实力。加星标的任务**仅作为选拔超算队新成员的依据，不参与课程评价和实验加分**。欢迎希望加入超算队的同学挑战它们。
+    
+    Lab1 在课程开始后还会再提交一次，你还可以利用期末考试后至开课前期的空闲时间继续补充自己尝试的内容。
+
+在完成 Bonus 任务前，你可以先阅读[技术杂谈](#技术杂谈)章节，了解一些相关的知识。
+
+### 集群搭建
+
+!!! tip "Bonus"
+    - 正确为每台机器设置主机名，并能从主机名解析出 IP 地址。
+    - 通过 NFS 或其他共享文件系统，实现集群间文件共享。
+    - **(\*)** 通过 nis 或 ldap 等方法实现集群间用户（组）共享和管理。
+    - **(\*)** 选择你喜欢的节点指标，日志收集，监控等方法，并利用 grafana 等工具进行可视化。
+    - **(\*)** 如果你通过虚拟机或物理机等方式进行实验，可以尝试利用 pxe 引导集群启动。
+
+### 软件安装
+
+!!! tip "Bonus"
+
+    - 你也可以尝试其它 BLAS 实现，如更新版本的 [LAPACK](https://www.netlib.org/lapack/)，[OpenBLAS](http://www.openmathlib.org/OpenBLAS/)，[MKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html)，[AOCL](https://www.amd.com/en/developer/aocl.html) 等, 并比较它们的性能。
+    - 使用 spack 包管理器安装 OpenMPI、BLAS 和 HPL。
+
+
+
+### 性能测试
+
+!!! tip "Bonus"
+
+    在完成基本的 HPL 测试后，你可以尝试通过以下方法提高性能：
+
+    1. 调整 HPL.dat 参数：
+        - 调整问题规模 N 以充分利用内存
+        - 调整分块大小 NB 以优化计算效率
+        - 调整 P×Q 进程网格布局以匹配集群拓扑
+
+    2. 编译优化：
+        - 更换编译器
+        - 修改编译优化选项
+        - 尝试更换 BLAS 库
+
+    4. 运行环境优化：
+        - 优化 OpenMP 绑核参数
+        - 调整 MPI 进程绑定，rank 拓扑
+
+    请记录你尝试过的优化方法及其效果，分析性能提升的原因。性能的绝对值不作为评判依据，重要的是你通过哪些方法提高了性能，以及你对这些优化方法的理解。
+
+## 技术杂谈
 
 ### 包管理器
 
@@ -906,11 +936,6 @@ NFS 的主要特点包括：
 - [引导方式：PXE](https://docs.zjusct.io/operation/system/diskless/pxe/)
 - [数据采集：OpenTelemetry](https://docs.zjusct.io/operation/observability/opentelemetry/)
 
-## 任务三：Bonus
-
-你可以按照兴趣，完成 [Bonus 任务](#具体任务)。
-
-Bonus 任务没有标准答案，欢迎你来与我们探讨。
 
 ## 参考资料
 
