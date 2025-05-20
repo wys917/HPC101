@@ -5,7 +5,7 @@
 - M6 集群：
     - CPU：Silver 4314 16Core @ 2.4GHz 或 Gold 5320 26Core @ 2.2GHz
     - 内存：DDR4 256 GB 以上
-    - Ethernet：1Gbps
+    - Ethernet：10Gbps
     - Infiniband：HDR 200Gbps
 - 管理节点：`root`
     - CPU：Platinum 8358 CPU 32Core @ 2.60GHz
@@ -17,8 +17,8 @@
         - `/river`：7.68TB=4x3.48TB NVMe SSD RAIDZ10
         - `/lake`：18TB=12x2TB SATA HDD RAIDZ3
 - 存储节点：`storage`
-    - CPU：E5-2620 v4 8Core @ 2.1GHz
-    - 内存：DDR4 96 GB
+    - CPU：E5-2670 v3 12Core @ 2.3GHz
+    - 内存：DDR4 256 GB
     - Ethernet：1Gbps
     - Infiniband：QDR 40Gbps
     - 存储池：
