@@ -496,10 +496,12 @@ BLAS 是 Basic Linear Algebra Subprograms 的缩写，是一组用于实现基�
 ```mermaid
 flowchart LR
     A[HPL] --> B[CBLAS] --> D[LAPACK]
-    A[HPL] --> C[OpenMPI]
+    A[HPL] --> C[OpenMPI] -.-> E[zlib]
 ```
 
 因此，你需要先编译 OpenMPI，BLAS 和 CBLAS，然后再编译依赖他们的 HPL。
+
+zlib 是 OpenMPI 的可选依赖，用于改善数据传输性能，可在构建 OpenMPI 前安装 `zlib1g-dev`。
 
 - 构建并安装 OpenMPI：
     - 前往 [OpenMPI 官网](https://www.open-mpi.org/software/ompi/) 下载最新版本源码。
@@ -536,6 +538,7 @@ flowchart LR
     - OpenMPI
 
     ```bash
+    sudo apt install -y zlib1g-dev
     wget "https://download.open-mpi.org/release/open-mpi/v5.0/openmpi-5.0.3.tar.gz"
     tar xvf openmpi-5.0.3.tar.gz
     cd openmpi-5.0.3
