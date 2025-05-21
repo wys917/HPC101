@@ -7,6 +7,11 @@
     - 内存：DDR4 256 GB 以上
     - Ethernet：10Gbps
     - Infiniband：HDR 200Gbps
+- M7 集群
+    - CPU：Gold 5418Y 24Core @ 2.0GHz
+    - 内存 DDR5-4800
+    - Ethernet：1Gbps
+    - Infiniband：HDR 200Gbps
 - 管理节点：`root`
     - CPU：Platinum 8358 CPU 32Core @ 2.60GHz
     - 内存：DDR4 512 GB
