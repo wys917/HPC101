@@ -531,6 +531,46 @@ zlib 是 OpenMPI 的可选依赖，用于改善数据传输性能，可在构建
 
     如果你遇到了无法解决的困难，可以参考下面的解答和说明。如果还是无法解决，请向我们反馈。
 
+!!! tip "如何阅读错误信息并处理错误"
+
+    命令行与图形界面的一大不同就是，在命令的运行过程中会给出很多记录（Log）和错误信息（Error Message）。新手可能都有畏难心理，觉得这些信息很难看懂/看了也没有什么用，但很多时候解决方法已经在错误信息中了。举个例子，下面是运行 `make` 时产生的一些信息，你能指出错误是什么吗？
+
+    ```text linenums="1"
+    make[1]: Leaving directory '/home/test/hpl/hpl-2.3'
+    make -f Make.top build_src arch=Linux_PII_CBLAS
+    make[1]: Entering directory '/home/test/hpl/hpl-2.3'
+    ( cd src/auxil/Linux_PII_CBLAS; make )
+    make[2]: Entering directory '/home/test/hpl/hpl-2.3/src/auxil/Linux_PII_CBLAS'
+    Makefile:47: Make.inc: No such file or directory
+    make[2]: *** No rule to make target 'Make.inc'.  Stop.
+    make[2]: Leaving directory '/home/test/hpl/hpl-2.3/src/auxil/Linux_PII_CBLAS'
+    make[1]: *** [Make.top:54: build_src] Error 2
+    make[1]: Leaving directory '/home/test/hpl/hpl-2.3'
+    make: *** [Make.top:54: build] Error 2
+    ```
+
+    ??? success "Check your answer"
+
+        错误是第 6 行的 `Makefile:47: Make.inc: No such file or directory`。这个错误信息的开头是 `Makefile:47`，表示错误发生在 Makefile 的第 47 行。错误原因是 `Make.inc` 文件不存在。
+
+        那么如何解决这个问题呢？**当然是去发生错误的地方看看**。跳转到 `/home/test/hpl/hpl-2.3/src/auxil/Linux_PII_CBLAS` 这个文件夹，使用 `ls -lah` 命令查看文件夹中的文件，我们得到如下结果：
+
+        ```text
+        total 5.5K
+        drwxr-xr-x 2 test test  4.0K May  6  2024 .
+        drwxr-xr-x 3 test test 11.0K May  6  2024 ..
+        lrwxrwxrwx 1 test test    36 May  6  2024 Make.inc -> /home/test/hpl/hpl/Make.Linux_PII_CBLAS
+        -rw-r--r-- 1 test test  5.0K May  6  2024 Makefile
+        ```
+
+        对比一下现在的位置：`/home/test/hpl/hpl-2.3/`，显然上面路径中是把 `hpl-2.3` 写成了 `hpl`。修改顶层 Makefile 中的路径即可解决问题。
+
+    总结步骤如下：
+
+    1. 阅读提示信息，定位错误位置和原因（如果读不懂，去 Google 或扔给 ChatGPT）。
+    2. 去错误现场，看看发生了什么。
+    3. 根据提示和查阅得到的资料修复错误。
+
 ??? success "步骤参考及说明"
 
     **请务必在阅读本部分之前，先参考知识讲解，尝试自己构建 OpenMPI, BLAS 和 HPL。**
