@@ -7,3 +7,4 @@ mkdocs-include-dir-to-nav
 mkdocs-material
 mkdocs-timetoread-plugin
 neoteroi-mkdocs
+mkslides
