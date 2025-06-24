@@ -1,8 +1,5 @@
 # 登录集群
 
-!!! warning "别急"
-    集群会在短学期正式开始后开放使用。
-
 ## 配置 SSH 密钥登录
 
 !!! warning "警告"
@@ -11,14 +8,16 @@
 集群仅会支持 SSH 密钥登录。请按照以下步骤配置 SSH 密钥登录：
 
 1. 在 [ZJU Git](https://git.zju.edu.cn/) 中添加你的 SSH 公钥。集群 SSH 验证将从这里动态获取你的公钥。你可以通过 `https://git.zju.edu.cn/学号.keys` 查看你添加的公钥。
-1. 登录集群时，使用 `ssh 账户名+节点名@clusters.zju.edu.cn` 登录。如果你的 SSH 密钥配置正确，你将登录到集群登录节点。
+1. 登录集群时，使用 `ssh 账户名+节点名@clusters.zju.edu.cn` 登录。如果你的 SSH 密钥配置正确，你将登录到集群登录节点。**账户名为 h+学号**。
 
     !!! example
 
-        用户 `student` 登录到 `hpc101` 节点，应当执行的命令为：
+        学号 3260100000 的用户名为 `h3260100000`
+
+        用户 `h3260100000` 登录到 `hpc101` 节点，应当执行的命令为：
 
         ```shell
-        ssh student+hpc101@clusters.zju.edu.cn
+        ssh h3260100000+hpc101@clusters.zju.edu.cn
         ```
 
 1. `clusters.zju.edu.cn` 支持 SSH 的端口有：22、80、443。如果默认端口（22）无法连接，请尝试使用另外两个端口：
