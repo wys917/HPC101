@@ -2,6 +2,7 @@
 
 目前开放的登陆节点是一台虚拟机，配置如下：
 
+- 节点名: `hpc101`
 - CPU: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz 128 线程
 - Memory: 256GB
 
