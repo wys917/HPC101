@@ -20,3 +20,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 <!--s-->
 
+<!-- .slide: data-background-image="./assets/zjusct-square.png" -->
+<!-- .slide: data-background-image="./assets/zjusct-square-inv.png" -->
+<!-- .slide: data-background-image="./assets/zjusct-square-trans.png" -->
+<!-- .slide: data-background-image="./assets/zjusct.svg" -->

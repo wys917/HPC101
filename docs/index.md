@@ -249,7 +249,7 @@ git clone -b main --single-branch git@github.com:ZJUSCT/HPC101.git
 ```bash
 pip install -r requirements.txt
 mkdocs serve # 预览课程文档
-mkslides serve # 预览课程幻灯片
+mkslides serve slides # 预览课程幻灯片
 ```
 
 课程实验文件夹布局如下：
@@ -272,4 +272,8 @@ find . -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) -exec s
 - Sekath Italic
 - Supercharge
 
-课程幻灯片存放在 `slides/` 目录下，使用 [MartenBE/mkslides](https://github.com/MartenBE/mkslides/) 构建到 MkDocs 构建后的目录下然后部署，以实现 MkDocs 和 mkslides 的集成。
+课程幻灯片存放在 `slides/` 目录下，使用 [MartenBE/mkslides](https://github.com/MartenBE/mkslides/) 构建到 MkDocs 构建后的目录下然后部署，以实现 MkDocs 和 mkslides 的集成。参考下列样式修改：
+
+- [HoGentTIN/cdn](https://github.com/HoGentTIN/cdn/blob/main/styles/reveal-js/slides.css)
+- [HoGentTIN/linux-slides](https://github.com/HoGentTIN/linux-slides/blob/main/hogent.css)
+- [TonyCrane/slide-template](https://github.com/TonyCrane/slide-template/blob/master/slide/src/custom.css)
