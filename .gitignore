@@ -3,4 +3,6 @@ site/*
 .DS_Store
 .cache
 venv/
+.venv/
 site-slides/
+build/
