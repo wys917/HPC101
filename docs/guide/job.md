@@ -6,16 +6,49 @@
 
     - [Quick Start User Guide](https://slurm.schedmd.com/quickstart.html)
 
-Slurm 提供三大功能：
+      Slurm 提供三大功能：
 
-- 控制用户对节点的访问
-- 提供并行任务执行框架
-- 提供任务调度和队列
+      - 控制用户对节点的访问
+      - 提供并行任务执行框架
+      - 提供任务调度和队列
 
-Slurm 中的几个实体：
+      Slurm 中的几个实体：
 
-- 节点（node）组成分区（partition），可以视为任务队列
-- 任务（job）由一个或多个步骤（step）组成
+      - 节点（node）组成分区（partition），可以视为任务队列
+      - 任务（job）由一个或多个步骤（step）组成
+
+
+## 分区简介
+
+通过 `sinfo` 命令可以查看分区信息：
+
+```shell
+sinfo
+M6*          up    1:00:00      4    mix M[600-603]
+M6*          up    1:00:00      1   idle M604
+M7           up    1:00:00      2   idle M[700-701]
+V100         up    1:00:00      3    mix v[00-01,13]
+V100         up    1:00:00     29   idle v[02-03,10-12,20-23,30-33,40-43,50-53,60-63,70-73]
+kunpeng      up      30:00      1   idle k11
+riscv        up      30:00      1  idle* rv01
+riscv        up      30:00      1   idle rv00
+```
+
+- M6, M7 分区是超算队自有节点。
+
+- V100 分区是信息中心提供的 GPU 节点，共 8 台物理机，64 个 V100 GPU。我们把它切成了 32 个节点，每个节点有 2 个 GPU。
+
+- kunpeng 分区由信息中心提供的鲲鹏 920 节点构成。
+
+- riscv 分区由[**进迭时空**](https://www.spacemit.com/)提供的给超算队的 RISC-V 开发板构成。
+
+**具体参见 [集群概况](./overview.md)**
+
+!!! tip
+
+    对于 M6 集群，m60[0-1] CPU 一样, m60[2-4] CPU 一样，跑任务的时候尽量避免混用。提交任务时可以使用 `-w` 参数指定使用哪些节点。
+
+
 
 ## 提交任务
 
@@ -25,7 +58,7 @@ Slurm 有三种提交任务的方式：
 - `sbatch`
 - `salloc`
 
-不论以哪种方式，我们都推荐使用脚本文件执行任务。脚本文件模板如下：
+使用 `sbatch` 提交任务时，脚本文件模板如下：
 
 ```shell title="job.sh"
 #!/bin/bash
@@ -45,6 +78,36 @@ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 mpirun xhpl
 ```
 
+在运行 Intel MPI 时，需要设置环境变量 `I_MPI_PMI_LIBRARY`。例如，使用 `srun` 运行 `xhpl` 时:
+
+```shell hl_lines="3 10 12"
+spack load intel-oneapi-mpi
+
+export I_MPI_PMI_LIBRARY=/slurm/libpmi2.so.0.0.0
+export I_MPI_DEBUG=+5
+
+# 使用 srun 命令运行 xhpl 程序
+# -N 2: 使用 2 个节点
+# -p M7: 在 M7 分区运行
+# -w M700,M701: 指定使用 M700 和 M701 两个节点
+# --mpi=pmi2: 使用 PMI2 接口进行 MPI 通信
+# --ntasks-per-node=1: 每个节点运行 1 个 MPI 进程
+# --cpus-per-task=96: 每个任务使用 96 个 CPU 核心
+srun -N 2 -p M7 -w M700,M701 --mpi=pmi2 --ntasks-per-node=1 --cpus-per-task=96 xhpl
+```
+
+!!! tip
+
+    我们推荐使用 Intel MPI。
+
+
+!!! warning
+
+    请注意，slurm 会强制绑定任务（包括ssh会话里的进程）运行在CPU的某些核心上，在提交作业时如果不指定 `--cpus-per-task`，则默认使用 1 个线程。
+    这时所有进程都会运行在同一个核心上。
+
+
+
 输出文件名有一些特殊的格式：
 
 | 格式 | 描述 |
@@ -62,6 +125,14 @@ job%2j-%2t.out
 ```
 
 ## 查看任务
+
+可以使用 `squeue` 命令查看当前任务：
+
+```shell
+squeue
+```
+
+
 
 要使用 `sacct` 命令查看历史任务，你可以按照以下步骤操作：
 

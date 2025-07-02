@@ -4,6 +4,11 @@
 
 !!! warning
 
+    目前 OJ 还未上线
+
+
+!!! warning
+
     在继续之前，请确认你已经可以成功[登陆集群](./index.md)。
 
 !!! warning "警告"

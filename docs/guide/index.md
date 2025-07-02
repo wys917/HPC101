@@ -25,7 +25,7 @@
 
 集群仅会支持 SSH 密钥登录。请按照以下步骤配置 SSH 密钥登录：
 
-1. 在 [ZJU Git](https://git.zju.edu.cn/) 中添加你的 SSH 公钥。集群 SSH 验证将从这里动态获取你的公钥。你可以通过 `https://git.zju.edu.cn/学号.keys` 查看你添加的公钥。如果没有配置过 SSH 密钥对，请参考 [Lab 0 Linux Crash Course](../lab/Lab0-LinuxCrashCourse) 中的配置方法。
+1. 在 [ZJU Git](https://git.zju.edu.cn/) 中添加你的 SSH 公钥。集群 SSH 验证将从这里动态获取你的公钥。你可以通过 `https://git.zju.edu.cn/学号.keys` 查看你添加的公钥。如果没有配置过 SSH 密钥对，请参考 [Lab 0 Linux Crash Course](../lab/Lab0-LinuxCrashCourse/index.md) 中的配置方法。
 1. 登录集群时，使用 `ssh 账户名+节点名@clusters.zju.edu.cn` 登录。如果你的 SSH 密钥配置正确，你将登录到集群登录节点。**账户名为 h+学号**。
 
     !!! example
@@ -88,7 +88,17 @@
 
     或在 Visual Studio Code 建立远程 SSH 连接时选择 `hpc101` 连接到集群
 
-## 开启 X11 Forwarding
+
+!!! warning
+
+    登陆节点限制了每个用户最多使用8个CPU核心(800% CPU Time),和 12GB 内存。请不要在登陆节点上运行任何计算任务。
+
+
+
+
+## 下一步：[提交作业](./job.md)
+
+## Optional: 开启 X11 Forwarding
 
 <!-- !!! quote
 
