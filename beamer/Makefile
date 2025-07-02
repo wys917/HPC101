@@ -1,16 +1,25 @@
 LATEXMK := latexmk
 LATEXMK_OPTIONS = -lualatex -interaction=nonstopmode -file-line-error -output-directory=.output
-ifneq (, $(shell which $(LATEXMK)))
-	LATEXMK := $(shell which $(LATEXMK))
-else
-	LATEXMK := docker run --rm -v $(PWD):/workdir -w /workdir texlive/texlive latexmk
-endif
 LATEXINDENT := latexindent
 LATEXINDENT_OPTIONS = -w -c=.output
-ifneq (, $(shell which $(LATEXINDENT)))
+CLEAN := rm
+CLEAN_OPTIONS = -rf
+
+ifneq (, $(shell which $(LATEXMK)))
+	# if no latex environment is detected
+	LATEXMK := $(shell which $(LATEXMK))
 	LATEXINDENT := $(shell which $(LATEXINDENT))
+	CLEAN := rm
 else
-	LATEXINDENT := docker run --rm -v $(PWD):/workdir -w /workdir texlive/texlive latexindent
+	CONTAINER_NAME := texlive-container
+	LATEXMK := docker exec $(CONTAINER_NAME) latexmk
+	LATEXINDENT := docker exec $(CONTAINER_NAME) latexindent
+	CLEAN := docker exec $(CONTAINER_NAME) rm
+
+	# Check if container is running, start if not
+	ifeq (, $(shell docker ps -q -f name=$(CONTAINER_NAME)))
+		START_CONTAINER := docker run --rm -d -v $(PWD):/workdir -w /workdir --name $(CONTAINER_NAME) texlive/texlive tail -f /dev/null
+	endif
 endif
 
 # match for root .tex files
@@ -21,8 +30,8 @@ TEX_FILES := $(wildcard *.tex)
 all: clean lint $(TEX_FILES)
 
 %.tex: FORCE
+	$(START_CONTAINER)
 	$(LATEXMK) $(LATEXMK_OPTIONS) $@
-	cp .output/$(basename $@).pdf .
 
 FORCE:
 
@@ -30,5 +39,7 @@ lint:
 	find . -name "*.tex" -exec ${LATEXINDENT} ${LATEXINDENT_OPTIONS} {} \;
 
 clean:
-	rm -rf .output
-	rm -rf *.pdf
+	$(CLEAN) $(CLEAN_OPTIONS) .output
+
+stop:
+	docker stop $(CONTAINER_NAME)
