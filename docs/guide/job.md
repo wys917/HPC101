@@ -80,7 +80,7 @@ export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 mpirun xhpl
 ```
 
-sbatch提交任务的方法可以参考:https://hpc.pku.edu.cn/_book/guide/slurm/sbatch.html
+sbatch提交任务的方法可以参考: [https://hpc.pku.edu.cn/_book/guide/slurm/sbatch.html](https://hpc.pku.edu.cn/_book/guide/slurm/sbatch.html)
 
 在运行 Intel MPI 时，需要设置环境变量 `I_MPI_PMI_LIBRARY`。例如，使用 `srun` 运行 `xhpl` 时:
 
@@ -152,7 +152,7 @@ job%2j-%2t.out
 
 !!! tip
 
-    使用 `salloc` 申请到节点后，记得在完成工作后使用 `exit` 命令或 `scancel` 释放资源。
+    使用 `salloc` 申请到节点后，关闭终端会自动释放资源。
 
 
 ## 查看任务
