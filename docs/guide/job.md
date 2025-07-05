@@ -154,6 +154,63 @@ job%2j-%2t.out
 
     使用 `salloc` 申请到节点后，关闭终端会自动释放资源。
 
+### 提交GPU任务
+
+对于V100分区，使用GPU时需要指定GPU资源申请参数。Slurm提供了多种方式来申请GPU资源：
+
+#### 使用 `--gres` 参数
+
+`--gres=gpu:数量` 用于指定申请的GPU数量：
+
+```shell
+# 申请1个GPU
+salloc --gres=gpu:1 -p V100
+
+# 申请2个GPU
+salloc --gres=gpu:2 -p V100
+
+# 申请特定类型的GPU
+salloc --gres=gpu:v100:1 -p V100
+```
+
+#### 使用 `--gpus` 参数
+
+`--gpus` 是更现代的GPU资源申请方式：
+
+```shell
+# 申请1个GPU
+salloc --gpus=1 -p V100
+
+# 申请2个GPU
+salloc --gpus=2 -p V100
+
+# 指定每个节点的GPU数量
+salloc --gpus-per-node=2 -p V100
+
+# 指定每个任务的GPU数量（用于MPI任务）
+salloc --gpus-per-task=1 --ntasks=2 -p V100
+```
+
+#### 批处理GPU任务示例
+
+```shell title="gpu_job.sh"
+#!/bin/bash
+#SBATCH --job-name=gpu_test
+#SBATCH --partition=V100
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --gpus=1                 # 申请1个GPU
+#SBATCH --cpus-per-task=8
+#SBATCH --time=01:00:00
+#SBATCH --output=%x_%j.log
+
+# 设置CUDA环境
+module load cuda
+
+# 运行GPU程序
+./your_gpu_program
+```
+
 
 ## 查看任务
 
