@@ -228,7 +228,7 @@
                 }%
                 \hspace{0.2cm}%
             }%
-            % \includegraphics[height = 0.6cm]{img/aems.pdf}
+            % \includegraphics[height = 0.6cm]{day8_am/img/aems.pdf}
         \end{beamercolorbox}%
     }
     }{}{}
