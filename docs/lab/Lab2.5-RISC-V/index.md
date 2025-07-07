@@ -484,4 +484,8 @@ scp ./src/optimized.cpp  <username>+oj@clusters.zju.edu.cn:lab2p5/src/optimized.
 ssh <username>+oj@clusters.zju.edu.cn submit lab2p5
 ```
 
+运行时间参考:
 
+- 朴素实现: $3200$ ms
+- RVV Intrinsic: $1400$ ms
+- SpaceMiT IME: $500$ ms
