@@ -53,7 +53,7 @@ theme:
     - navigation.sections
     - navigation.expand
     # 章节首页 index.md
-    - navigation.indexes
+    # - navigation.indexes
     # 锚点
     - navigation.tracking
     # 路径
