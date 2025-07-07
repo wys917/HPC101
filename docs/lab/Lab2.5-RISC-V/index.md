@@ -263,11 +263,17 @@ for (size_t i = 0; i < N; i += vl) {
     
 !!! tip "提示"
 
+    1. 并不是上面所有的操作都必须用到，只是为了方便大家通过各种方法实现任务而提供参考
     1. 对于输入为 int8，结果用 int32 累加的情况，可以考虑使用对应的 `Widening` 的操作
     1. 在使用 SpaceMiT IME 指令完成实验时，你可能会需要用到在加载一小个分块矩阵到寄存器的操作，为此，你可能需要了解:
         -  `Memory` -> `Load` 中 `Strided` 的操作
         -  加载数据和操作数据时，可以设置不同的 SEW 和 LMUL
-    1. 并不是上面所有的操作都必须用到，只是为了方便大家通过各种方法实现任务而提供参考
+
+     <center>
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <img src="./image/load-hint.webp" alt="Strided Load Hint on Choosing SEW and LMUL" style="width: 50%;">
+        </div>
+    </center>
 
 
 ## 知识讲解: SpaceMiT IME 矩阵扩展
@@ -301,6 +307,10 @@ vmadotus vd, vs1, vs2 ; us 表示 rs1 是无符号整数，vs2 是有符号整�
 具体操作的示意图如下:
 
 ![vmadotus](./image/vmadot.webp)
+
+注意上图中的 B 矩阵在内存中的排布需要是转置过的（但由于我们认为 B 矩阵已经转置，无需额外处理），`vmadot` 可以用一条指令进行 16 次点积和累加运算，这条指令的 Throughput 是 RVV 对应指令的 4 倍。动画展示如下:
+
+![vmadotus animation for each step](./image/vmadot-anim.webp)
 
 `vmadotus` 指令将会逐行列进行内积，并将结果累加在 32-bit 整数中，最后得到一个 `(4, 4)` 的 32-bit 整数矩阵。
 
@@ -458,6 +468,7 @@ vmadotus v2, v0, v1\n             // 进行矩阵乘法
             3. OJ 运行结果 (可选)
         - 不包含:
             1. 非关键部分代码的复制粘贴
+    3. 实验感想与建议 (可选)
 
 !!! info "关于 AI 使用的要求"
 
