@@ -482,10 +482,6 @@ vmadotus v2, v0, v1\n             // 进行矩阵乘法
 
 ## 自动化测试
 
-!!! info "📢 Stay Tuned"
-
-    本次实验的 OJ 测评将于 7 月 10 日前开放，请关注课程交流群通知
-
 !!! danger "这里没必要卷"
 
     OJ 测评仅作为正确性、加速效果的参考，并且提高大家对程序不断优化的积极性。
@@ -498,12 +494,42 @@ vmadotus v2, v0, v1\n             // 进行矩阵乘法
 
 举例：
 ```bash
-scp ./src/optimized.cpp  <username>+oj@clusters.zju.edu.cn:lab2p5/src/optimized.cpp
+sftp <username>+oj@clusters.zju.edu.cn
+# sftp 交互式 shell:
+> cd lab2p5
+> mkdir src
+> exit
+scp ./src/optimized.cpp  <username>+oj@clusters.zju.edu.cn:lab2p5/src/
 ssh <username>+oj@clusters.zju.edu.cn submit lab2p5
 ```
 
-运行时间参考 (使用 clang 19 编译器):
+!!! info "OJ 评标"
 
-- 朴素实现: $3200$ ms
-- RVV Intrinsic: $1400$ ms
-- SpaceMiT IME: $500$ ms
+    OJ 使用的编译选项与 `src/lab2p5` 提供的相同，编译器为 clang19，优化选项为 `-O2`。
+
+    OJ 采用对数曲线进行给分，这意味着只要比 baseline 快，就可以很快获得一定的分数。同时也允许在标准满分的基础上进一步优化的同学获得更高的分数，分数上限为 105 分。
+    
+    下面是不同优化的得分曲线:
+
+    ![Score](./image/score.webp)
+
+    | 实现方式 | 运行时间 | 得分 |
+    |---------|---------|------|
+    | 朴素实现 | $3200$ ms | $0$ pts |
+    | RVV Intrinsic | $1400$ ms | $74.55$ pts` |
+    | SpaceMiT IME | $500$ ms | $100$ pts |
+    | 进一步优化 | $300$ ms | $105$ pts |
+
+!!! tip "进一步优化提示"
+    Muse Pi Pro 所使用的 X60 核心为双发射 8 级顺序流水线核心，针对此特点，你可以考虑下面这些优化:
+
+    - 手动循环展开
+    - 调整访存和运算指令的顺序，进行手动指令重排 (因为内嵌汇编，编译器无法自动完成这件事)
+        - 将多次迭代的 `vle` 和 `vmadot` 进行重排，可以避免 `vmadot` 等待内存访问造成的流水线阻塞
+    - 使用 Strided Load / Store 指令代替 `for` 循环编写的内存移动
+
+    OJ 测评时会给出 Int8 TOPS (Tera Operations Per Second) 指标，你可以在实验报告里思考以下内容 **(可选)**:
+
+    - TOPS 指标如何计算？根据输出的运行时间验证
+    - 单核性能最高可达 0.4 TOPS Int8，你的算力利用率是多少？
+    - 为什么达不到单核算力峰值？（期待从内存访存、流水线角度分析）
