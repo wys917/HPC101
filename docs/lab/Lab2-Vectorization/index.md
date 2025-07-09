@@ -378,7 +378,7 @@ void naive_gemm(uint8_t* A, int8_t* B, uint32_t* C, int m, int n, int k) {
 
     同学们除了自己在集群上手动测试加速比之外，还可以使用 OJ 提交优化代码 (和同学们一起打榜 ac01)
 
-    OJ 使用方法请阅读: [使用在线测评](../../guide/oj)
+    OJ 使用方法请阅读: [使用在线测评](../../guide/oj.md)
 
 使用 scp 等将 `main.cpp, reshape.cpp, config.yaml` 上传到 OJ 的 lab2 文件夹，然后就可以进行提交。
 
