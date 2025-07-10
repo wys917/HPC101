@@ -494,12 +494,18 @@ vmadotus v2, v0, v1\n             // 进行矩阵乘法
 
 举例：
 ```bash
+# 方法一：
 sftp <username>+oj@clusters.zju.edu.cn
 # sftp 交互式 shell:
 > cd lab2p5
 > mkdir src
 > exit
 scp ./src/optimized.cpp  <username>+oj@clusters.zju.edu.cn:lab2p5/src/
+
+# 方法二：
+scp ./src/optimized.cpp  <username>+oj@clusters.zju.edu.cn:lab2p5/src/optimized.cpp
+
+# 提交
 ssh <username>+oj@clusters.zju.edu.cn submit lab2p5
 ```
 
