@@ -355,10 +355,10 @@ void naive_gemm(uint8_t* A, int8_t* B, uint32_t* C, int m, int n, int k) {
 
 ## 思考题
 
-1. 在本地环境安装 Python 和 [uv](https://docs.astral.sh/uv/getting-started/installation/) 或 MircoMamba 等环境管理工具，在激活环境后，使用 `python main.py` 运行提供的双线性插值向量化版本的例子，这个代码可以在仓库下载，在报告里回答以下问题：
-    - 代码第 22 行 - 第 24 行中的 None 起到什么作用？可以删掉吗，请说明理由？
-    - 代码第 25 行中 `a[n_idx, x_idx, y_idx]` 的 shape 是什么？这些 idx 在这里是怎么作用的？
-    - 代码第 25 行中的向量乘法中这三个向量的维度相同吗？如果不同的话，是怎么广播的？
+1. 在本地环境安装 Python 和 [uv](https://docs.astral.sh/uv/getting-started/installation/) 或 MircoMamba 等环境管理工具，在激活环境后，使用 `python main.py` 运行提供的双线性插值向量化版本的例子，这个代码可以在仓库下载，在报告里回答以下问题（该问代码于文件vectorized.py）：
+    - 代码第 21 行 - 第 23 行中的 None 起到什么作用？可以删掉吗，请说明理由？
+    - 代码第 24 行中 `a[n_idx, x_idx, y_idx]` 的 shape 是什么？这些 idx 在这里是怎么作用的？
+    - 代码第 24 行中的向量乘法中这三个向量的维度相同吗？如果不同的话，是怎么广播的？
 2. 品味 `reshape.cpp` 的的任意一个矩阵转置算法，把函数里面出现的每一个指令的功能说明（用文字的形式，说明指令的输入输出参数含义以及指令含义），指令的寻找需要参考 [Intel® Intrinsics Guide](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html)，把结果体现在报告里。
 
 ## 实验任务与要求
