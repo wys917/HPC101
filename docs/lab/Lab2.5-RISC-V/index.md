@@ -522,7 +522,7 @@ ssh <username>+oj@clusters.zju.edu.cn submit lab2p5
     | 实现方式 | 运行时间 | 得分 |
     |---------|---------|------|
     | 朴素实现 | $3200$ ms | $0$ pts |
-    | RVV Intrinsic | $1400$ ms | $74.55$ pts` |
+    | RVV Intrinsic | $1400$ ms | $74.55$ pts |
     | SpaceMiT IME | $500$ ms | $100$ pts |
     | 进一步优化 | $300$ ms | $105$ pts |
 
