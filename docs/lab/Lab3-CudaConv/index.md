@@ -380,7 +380,37 @@ NVIDIA 的 cuDNN 库提供了高性能的卷积实现, 你可以考虑测试一�
 
     即使加速比不是很理想, 但优化思路明确, 代码完成程度高, 一样可以得到实验的高分. 同理, 即使 OJ 都拿了满分, 但报告很简略, 没有提及关键思路, 也不会获得很理想的分数. 
 
-OJ 施工中...
+使用 scp 等将 `src/conv.cpp` 上传到 OJ 的 lab3 文件夹，然后就可以进行提交。
+
+举例：
+```bash
+# 方法一：
+sftp <username>+oj@clusters.zju.edu.cn
+# sftp 交互式 shell:
+> mkdir lab3
+> cd lab3
+> exit
+scp ./src/conv.cu  <username>+oj@clusters.zju.edu.cn:lab3/
+
+# 方法二：
+scp ./src/conv.cu  <username>+oj@clusters.zju.edu.cn:lab3/conv.cu
+
+# 提交
+ssh <username>+oj@clusters.zju.edu.cn submit lab3
+```
+
+!!! info "OJ 评标"
+
+    OJ 采用对数曲线进行给分，这意味着只要比 baseline 快，就可以很快获得一定的分数。同时也允许在标准满分的基础上进一步优化的同学获得更高的分数，分数上限为 105 分。
+    
+    下面是不同优化的得分曲线:
+
+    ![Score](./image/lab3_score.webp)
+
+    横轴为毫秒数, 纵轴为得分. `conv_int8` 和 `conv_half` 使用同一曲线, 总得分是两个任务分数的**最大值**. 也就是说, 你只需要优化其中一个任务. 
+
+!!! tip "优化提示"
+    `conv_half` 在使用 Tensor Core 时可以较为容易的拿到满分. 如果你不打算使用 Tensor Core, 可以只考虑优化 `conv_int8` 任务, 并强烈推荐你使用 DP4A 指令.
 
 
 ### 注意事项
