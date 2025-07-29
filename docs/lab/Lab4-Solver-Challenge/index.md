@@ -666,6 +666,16 @@ spack install intel-oneapi-itac  # ITAC
     - `--ntasks-per-node` 对应每个节点上的进程数
     - `--cpus-per-task` 对应每个进程的线程数
 
+    你可以使用 `bash -c "hostname && taskset -cp \$\$"` 检测是否申请到正确的核心，比如:
+
+    ```bash
+    M600:~$ srun -p solver1 -N 1 -c 10 bash -c "hostname && taskset -cp \$\$"
+    M602
+    pid 273240's current affinity list: 0-4,52-56
+    ```
+
+    也可以添加到 sbatch 脚本中。
+
 我们提供 `BiCGSTAB Solver` 代码的串行版本作为[基准代码](https://github.com/ZJUSCT/HPC101/tree/main/src/lab4)。
 
 数据文件在集群的 `/river/hpc101/2025/lab4/data` 中，你可以在代码的根目录下，通过 
