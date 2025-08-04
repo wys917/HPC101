@@ -24,6 +24,9 @@
 集群上目前在 `/pxe/opt/spack` 目录下安装了 `Spack`（下称集群 Spack），提供了常用的编译环境。 你可以通过如下命令，将集群 Spack 设置为本地 Spack 的上游 Spack 实例，从而复用集群 Spack 已安装的软件包，节省安装时间。
 
 ```shell
+# Load Cluster Level spack
+source /pxe/opt/spack/share/spack/setup-env.sh
+# Add environment
 spack config add upstreams:zjusct-spack:install_tree:/pxe/opt/spack/opt/spack
 ```
 
