@@ -26,8 +26,6 @@
 ```shell
 # Load Cluster Level spack
 source /pxe/opt/spack/share/spack/setup-env.sh
-# Add environment
-spack config add upstreams:zjusct-spack:install_tree:/pxe/opt/spack/opt/spack
 ```
 
 你可以通过 `spack find` 来查看已经安装的软件包。
