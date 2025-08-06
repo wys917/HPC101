@@ -328,11 +328,14 @@ spack install intel-oneapi-itac  # ITAC
 
 #### ITAC
 
-??? quote "有关 Intel Trace Analyzer and Collector 停止支持的问题"
+???+ quote "有关 Intel Trace Analyzer and Collector 停止支持的问题"
 
     根据 [Intel Trace Analyzer and Collector](https://www.intel.cn/content/www/cn/zh/developer/tools/oneapi/trace-analyzer.html) 的说明，这款性能分析工具已于 2025 年停止支持。其已不再被包含在 Intel HPC Toolkit 中，并且功能将逐渐转移至 VTune Profiler。
 
-    但是目前，VTune Profiler 还没有支持 MPI 程序进程间通信的详细分析。在软件功能迁移的过渡阶段，如果同学们希望对 MPI 程序进行深入的分析，需要单独安装 Intel Trace Analyzer and Collector。
+    但是目前，VTune Profiler 还没有支持 MPI 程序进程间通信的详细分析。在软件功能迁移的过渡阶段，如果同学们希望对 MPI 程序进行深入的分析，需要单独安装 Intel Trace Analyzer and Collector。但是目前 Intel 已经关闭了 ITAC 的官方下载渠道，所以同学们可以选择:
+
+    1. 在本地 Linux 机器使用 spack 安装 ITAC，并且运行 ITAC 的 GUI 界面
+    1. 配置 X11 转发，使用集群上利用 spack 安装的 ITAC
 
 你可以通过 `spack load intel-oneapi-itac` 加载 ITAC。当然这里同样建议同学们把 ITAC 安装到本地，在本地查看集群的分析结果。
 
@@ -743,6 +746,27 @@ Lab 4 实验在 SLURM 集群上进行，提供了以下两个计算分区供使�
         - `compile.sh` 以及其他你需要上传的文件。
     - 请将 Profile 任务的文件放在 `profile` 文件夹内　(如果有需要上传的)
 
+### 常见问题
+
+???+ success "Q: 使用 OpenMP 后，我的程序变慢了许多 / 没有什么作用，该怎么做？"
+
+    请使用 `btop` 等工具查看程序运行时 CPU 的实时占用率以及核心数，确认程序真的跑在了多个核心上，如果没有，可以按照这些步骤来排查:
+
+    1. 请确认自己的计算程序运行在计算节点上，如 M602-M604. 不建议在登录节点 `sct101` 上运行计算程序
+    1. 请检查 `CMakeLists.txt` 中是否添加了启用 OpenMP 的选项，如果你有些忘记了，请查看 [MPI 调优](#mpi-调优) 所列的表格
+    1. 请检查 `run.sh` 中 SBATCH 参数的设置是否正确，可以参考 [实验环境](#实验环境) 中的提示，可以使用 `srun` 添加相同参数运行一个测试程序 (请自己实现，可以让每个线程输出自己的 `tid`) 来确认
+    1. 如果尝试了绑核参数，可以使用 `mpirun` 相关的参数，在程序运行前输出绑核策略，来确认绑核是否有效地将 OpenMP 的线程绑定在指定的核心上 
+
+???+ success "Q: 在本地安装的 VTune Profiler 会闪退，怎么办？"
+
+    请确认 VTune Profiler 安装路径不包含非英文字符
+
+???+ success "Q: 实验文档太长了，我都要做哪些任务，可不可以简单讲一下?"
+
+    TLDR: 只需要完成 OpenMP + MPI 优化、Profiler 使用和任意一个其他优化这三个任务，并在实验报告中记录自己的尝试过程就可以。
+
+    如果你还有时间和余力，欢迎尝试更多的优化方法和 Bonus 任务。你也可以通过完成 Bonus 任务，来减免要求的三个任务中的一个，但请注意 Bonus 也需要花费精力来完成，直接使用 AI 生成的代码将不会被接受。
+
 ## Bonus 任务
 
 本部分**选做**, 感兴趣的同学可以尝试完成。
@@ -820,10 +844,6 @@ Bonus 部分完成即有加分 (完成 Bonus 部分实验要求，且能够通�
 
 ## OJ 使用说明
 
-!!! warning "Stay Tuned"
-
-    OJ 将于实验发布后一周内开放，请同学们关注 QQ 与课程钉钉群通知。
-
 !!! danger "这里没必要卷 😭"
 
     **请注意，OJ 上的得分仅供性能参考，不会直接折算进 Lab 得分，也不会按照加速比排行榜次序来评分。**
@@ -850,7 +870,7 @@ Bonus 部分完成即有加分 (完成 Bonus 部分实验要求，且能够通�
 
 请注意不要上传数据文件，上传成功后，可以使用 `ssh <用户名>+oj@clusters.zju.edu.cn submit lab4` 提交测评。
 
-如果需要操作文件结构，例如不小心上传错误文件，可以使用 `sftp` 交互式操作。
+由于实验需要提交多个文件和文件夹，请务必注意上传到 OJ 的文件是否满足要求，如果需要操作文件结构，例如不小心上传错误文件，可以使用 `sftp` 交互式操作。
 
 ??? info "OJ 的测评流程"
 
@@ -861,6 +881,20 @@ Bonus 部分完成即有加分 (完成 Bonus 部分实验要求，且能够通�
     3. 使用 `sbatch run.sh /river/hpc101/2025/lab4/data/case_<数据规模>.bin` 命令提交任务到集群。
         如果针对数据规模有不同的线程/进程规划策略，请在 `run.sh` 中进行相应的修改，通过 `$1` 代表脚本的第一个参数。
     4. 根据各组数据运行结果，首先检查输出是否正确，然后根据运行时间计算得分。
+
+    OJ 对每一组数据采用对数曲线进行给分，这意味着只要比 baseline 快，就可以很快获得一定的分数。同时也允许在标准满分的基础上进一步优化的同学获得更高的分数，分数上限为 105 分。最终得分为全部三组数据的平均值。
+
+    分数计算的参考运行时间如下：
+
+    | 数据 | 得分时间 | 满分时间 | 计算方式 |
+    | --- | --- | --- | --- |
+    | 2001 | 20s | 3s | 对数 |
+    | 4001 | 100s | 15s | 对数 |
+    | 6001 | 500s | 75s | 对数 |
+    
+    以第一组数据为例，直观感受对数计算方式：
+    
+    ![对数计算函数图像](image/log-score.webp)
 
 
 ## 推荐阅读资料
