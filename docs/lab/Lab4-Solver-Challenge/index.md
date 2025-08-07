@@ -861,6 +861,8 @@ Bonus 部分完成即有加分 (完成 Bonus 部分实验要求，且能够通�
 ├── CMakeLists.txt
 ├── run.sh
 ├── compile.sh
+├── include
+│   └── judger.h
 └── src
     ├── bicgstab
     │   └── solver.c
@@ -896,6 +898,20 @@ Bonus 部分完成即有加分 (完成 Bonus 部分实验要求，且能够通�
     
     ![对数计算函数图像](image/log-score.webp)
 
+???+ success "OJ 上如何加载编译与运行环境"
+    
+    在 OJ 测评时，**只能访问集群 spack**, 因此如果你使用 spack 提供的编译器，需要在 `compile.sh` 和 `run.sh` 中添加:
+
+    ```bash
+    source /pxe/opt/spack/share/spack/setup-env.sh
+    # 加载你需要的环境，如:
+    spack load intel-oneapi-mpi intel-oneapi-compilers
+    ```
+
+    同时，需要注意 OJ 编译使用的机器与计算节点架构不同，使用 `-march=native` 时，AVX512 将不可用。因此，你可以在 `CMakeLists.txt` 中根据需要选择下面的编译选项:
+
+    - `-march=icelake-server`: M600-M604 节点的架构 [Icelake](https://en.wikipedia.org/wiki/Ice_Lake_(microprocessor)#Ice_Lake-SP_(Xeon_Scalable))
+    - `-march=sapphirerapids`: M700-M701 节点的架构 [Sapphire Rapids](https://en.wikipedia.org/wiki/Sapphire_Rapids) (如果你想尝试在 M7 运行的话)
 
 ## 推荐阅读资料
 
