@@ -18,12 +18,14 @@ static constexpr int BLOCK_W = BLOCK;
 // --- INT8 版本的模板特化 (教科书式的优化版) ---
 // =======================================================
 template <>
-__global__ void conv2d_cuda_kernel<int8_t, int>(const int8_t *__restrict__ a, const int8_t *__restrict__ w, int8_t *__restrict__ b) {
-    // === 0. 共享内存准备 ===
-    extern __shared__ int8_t s_mem[];
+__global__ void conv2d_cuda_kernel<int8_t, int>(const int8_t *__restrict__ a,
+                                                const int8_t *__restrict__ w,
+                                                int8_t *__restrict__ b) {
+    // 原: extern __shared__ int8_t s_mem[];
+    extern __shared__ int8_t s_mem_int8[];                 // FIX: 重命名
     const int INPUT_TILE_SIZE_IN_ELEMENTS = (BLOCK_H + R - 1) * (BLOCK_W + S - 1);
-    int8_t* s_a = s_mem;
-    int8_t* s_w = s_mem + INPUT_TILE_SIZE_IN_ELEMENTS;
+    int8_t* s_a = s_mem_int8;                               // 对应更新
+    int8_t* s_w = s_mem_int8 + INPUT_TILE_SIZE_IN_ELEMENTS; // 对应更新
 
     // === 1. 坐标与ID计算 ===
     const int tx = threadIdx.x;
@@ -58,6 +60,8 @@ __global__ void conv2d_cuda_kernel<int8_t, int>(const int8_t *__restrict__ a, co
                 }
                 const int WEIGHT_SIZE = R * S;
                 for (int i = tid; i < WEIGHT_SIZE; i += NUM_THREADS) {
+                    const int r = i / S;        // FIX: 从 i 推导 r
+                    const int s = i % S;        // FIX: 从 i 推导 s
                     s_w[i] = w(k, r, s, c);
                 }
 
@@ -97,12 +101,14 @@ __global__ void conv2d_cuda_kernel<int8_t, int>(const int8_t *__restrict__ a, co
 // --- HALF 版本的模板特化 (同样是优化版，不是垃圾版) ---
 // =======================================================
 template <>
-__global__ void conv2d_cuda_kernel<half_t, float>(const half_t *__restrict__ a, const half_t *__restrict__ w, half_t *__restrict__ b) {
-    // === 0. 共享内存准备 ===
-    extern __shared__ half_t s_mem[];
+__global__ void conv2d_cuda_kernel<half_t, float>(const half_t *__restrict__ a,
+                                                  const half_t *__restrict__ w,
+                                                  half_t *__restrict__ b) {
+    // 原: extern __shared__ half_t s_mem[];
+    extern __shared__ half_t s_mem_half[];                  // FIX: 重命名
     const int INPUT_TILE_SIZE_IN_ELEMENTS = (BLOCK_H + R - 1) * (BLOCK_W + S - 1);
-    half_t* s_a = s_mem;
-    half_t* s_w = s_mem + INPUT_TILE_SIZE_IN_ELEMENTS;
+    half_t* s_a = s_mem_half;                               // 对应更新
+    half_t* s_w = s_mem_half + INPUT_TILE_SIZE_IN_ELEMENTS; // 对应更新
 
     // === 1. 坐标与ID计算 ===
     const int tx = threadIdx.x;
@@ -136,6 +142,8 @@ __global__ void conv2d_cuda_kernel<half_t, float>(const half_t *__restrict__ a, 
                 }
                 const int WEIGHT_SIZE = R * S;
                 for (int i = tid; i < WEIGHT_SIZE; i += NUM_THREADS) {
+                    const int r = i / S;        // FIX
+                    const int s = i % S;        // FIX
                     s_w[i] = w(k, r, s, c);
                 }
 
