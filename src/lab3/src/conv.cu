@@ -1,3 +1,4 @@
+//编译通过！！结果正确！！！
 #include "conv.cuh"
 
 // 宏定义：方便地对四维张量进行索引
@@ -105,9 +106,9 @@ __global__ void conv2d_cuda_kernel<int8_t, int>(const int8_t *__restrict__ a, co
 template <>
 __global__ void conv2d_cuda_kernel<half_t, float>(const half_t *__restrict__ a, const half_t *__restrict__ w, half_t *__restrict__ b) {
     // 声明动态共享内存 - 为输入数据和权重数据分配空间
-    extern __shared__ half_t s_mem[];
-    half_t* s_a_half = s_mem;
-    half_t* s_w_half = s_mem + (BLOCK_H + R - 1) * (BLOCK_W + S - 1);
+    extern __shared__ half_t s_mem_half[];
+    half_t* s_a_half = s_mem_half;
+    half_t* s_w_half = s_mem_half + (BLOCK_H + R - 1) * (BLOCK_W + S - 1);
     
     // === 1. 坐标与ID计算 ===
     const int tx = threadIdx.x;
