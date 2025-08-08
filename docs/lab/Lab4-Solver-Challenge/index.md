@@ -771,6 +771,14 @@ Lab 4 实验在 SLURM 集群上进行，提供了以下两个计算分区供使�
 
     请在使用 Uarch Exploration 模式时，使用 SLURM 申请该节点的全部核心，可以添加 `--cpus-per-task=104` 参数
 
+???+ success "Q: 为什么我的程序 sbatch 就能运行，在 OJ 上就运行不了 / 出错？"
+
+    请阅读 [OJ 使用说明](#oj-使用说明)，了解测评流程，还有 OJ 环境与计算节点的差异，你可以按照以下思路来排查:
+    
+    1. 确定自己上传到 OJ sftp 的代码和本地是一致的，没有传错，可以使用 [OJ 使用说明](#oj-使用说明) 中给出的脚本来上传
+    1. OJ 只能访问集群公共 spack 内的环境，无法加载自行安装的，位于家目录下的 spack，请确保自己使用的编译器和 OJ 提交的版本一样
+    1. 编译参数选择也需要注意，如果优化选项开得比较猛，会出现架构不同导致的程序行为不同。
+
 ???+ success "Q: 实验文档太长了，我都要做哪些任务，可不可以简单讲一下?"
 
     TLDR: 只需要完成 OpenMP + MPI 优化、Profiler 使用和任意一个其他优化这三个任务，并在实验报告中记录自己的尝试过程就可以。
@@ -881,6 +889,20 @@ Bonus 部分完成即有加分 (完成 Bonus 部分实验要求，且能够通�
 ```
 
 请注意不要上传数据文件，上传成功后，可以使用 `ssh <用户名>+oj@clusters.zju.edu.cn submit lab4` 提交测评。
+
+可以使用下面的脚本来上传代码:
+
+```bash
+#!/usr/bin/env bash
+
+user=$(whoami)
+
+scp -r src $user+oj@clusters.zju.edu.cn:lab4/
+scp -r include $user+oj@clusters.zju.edu.cn:lab4/
+scp compile.sh $user+oj@clusters.zju.edu.cn:lab4/compile.sh
+scp run.sh $user+oj@clusters.zju.edu.cn:lab4/run.sh
+scp CMakeLists.txt $user+oj@clusters.zju.edu.cn:lab4/CMakeLists.txt
+```
 
 由于实验需要提交多个文件和文件夹，请务必注意上传到 OJ 的文件是否满足要求，如果需要操作文件结构，例如不小心上传错误文件，可以使用 `sftp` 交互式操作。
 

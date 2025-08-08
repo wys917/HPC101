@@ -13,9 +13,10 @@
 # cpus-per-task 对应每个进程的线程数
 
 # 先加载 spack 再加载编译环境
-# e.g. 
-# source ${HOME}/spack/share/spack/setup-env.sh
+# e.g.
+# source /pxe/opt/spack/share/spack/setup-env.sh
 # spack load intel-oneapi-mpi
 
 # Run BICGSTAB
 ./build/bicgstab $1
+
