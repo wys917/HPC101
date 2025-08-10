@@ -3,17 +3,16 @@
 目前集群硬件资源如下：
 
 - M6 集群 共 5 个节点
-    - CPU (M600,M601)：Intel Silver 4314 16Core @ 2.4GHz
-    - CPU (M602,M603,M604)：Intel Gold 5320 26Core @ 2.2GHz
+    - CPU (M600,M601)：2 x Intel Silver 4314 16Core @ 2.4GHz (32 核心 64 线程)
+    - CPU (M602,M603,M604)：2 x Intel Gold 5320 26Core @ 2.2GHz (52 核心 104 线程)
     - 内存：DDR4 256 GB 以上
-    - Ethernet：10Gbps
-    - Infiniband：HDR 200Gbps
+    - Ethernet：10 Gbps
+    - Infiniband：HDR 200 Gbps
 
 - M7 集群 共 2 个节点
-    - CPU：Intel Gold 5418Y 24Core @ 2.0GHz
+    - CPU：2 x Intel Gold 5418Y 24Core @ 2.0GHz (48 核心 96 线程)
     - 内存 DDR5-4800
-    - Ethernet：1Gbps
-    - Infiniband：HDR 200Gbps
+    - Ethernet：1 Gbps
 
 - RISC-V 集群 ([**进迭时空**](https://www.spacemit.com/)提供) 共 8 个节点
     - CPU：Spacemit X60 @ 1.6Ghz
