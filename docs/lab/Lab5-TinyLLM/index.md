@@ -2,7 +2,7 @@
 
 !!! info "实验信息"
 
-    负责助教：林熙 ([@Erix025](https://github.com/Erix025)), 茅晋源, 尤傲([@You-Ao](https://github.com/You-Ao))
+    负责助教：林熙 ([@Erix025](https://github.com/Erix025)), 茅晋源([@skeletalknight](https://github.com/skeletalknight)), 尤傲([@You-Ao](https://github.com/You-Ao))
 
 ## 实验简介
 
