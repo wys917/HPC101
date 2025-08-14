@@ -644,7 +644,7 @@ spack install intel-oneapi-itac  # ITAC
     
     但请注意，在优化过程中，**严禁修改计时区**:
     
-    - 对于 `src/main.cpp` 的修改，请仅限于添加 MPI 相关的代码
+    - 对于 `src/main.cpp` 的修改，请仅限于添加 MPI Init 和 Finalize 的代码
     - `src/judger.cpp`, `include/judger.h` 不可以修改
     - **其他部分都可以进行修改**
 
@@ -748,9 +748,15 @@ Lab 4 实验在 SLURM 集群上进行，提供了以下两个计算分区供使�
 
 ### 常见问题
 
+???+ danger "Q: 关于 main.cpp 我可以修改哪些部分？"
+
+    **对于 src/main.cpp 的修改，请仅限于添加 MPI Init 和 Finalize 的代码**
+
+    不可以在计时区外添加其他 MPI 函数，如 `MPI_Bcast`, `MPI_Send` 等等，这些数据通信和计算一样，都需要在 bicgstab 函数中完成。
+
 ???+ success "Q: 使用 OpenMP 后，我的程序变慢了许多 / 没有什么作用，该怎么做？"
 
-    请使用 `btop` 等工具查看程序运行时 CPU 的实时占用率以及核心数，确认程序真的跑在了多个核心上，如果没有，可以按照这些步骤来排查:
+    请**务必**使用 `btop` 等工具查看程序运行时 CPU 的实时占用率以及核心数，确认程序真的跑在了多个核心上，如果没有，可以按照这些步骤来排查:
 
     1. 请确认自己的计算程序运行在计算节点上，如 M602-M604. 不建议在登录节点 `sct101` 上运行计算程序
     1. 请检查 `CMakeLists.txt` 中是否添加了启用 OpenMP 的选项，如果你有些忘记了，请查看 [MPI 调优](#mpi-调优) 所列的表格
@@ -760,6 +766,18 @@ Lab 4 实验在 SLURM 集群上进行，提供了以下两个计算分区供使�
 ???+ success "Q: 在本地安装的 VTune Profiler 会闪退，怎么办？"
 
     请确认 VTune Profiler 安装路径不包含非英文字符
+
+???+ success "Q: VTune Profiler 使用 Uarch Exploration 模式进行性能分析时，会报错"
+
+    请在使用 Uarch Exploration 模式时，使用 SLURM 申请该节点的全部核心，可以添加 `--cpus-per-task=104` 参数
+
+???+ success "Q: 为什么我的程序 sbatch 就能运行，在 OJ 上就运行不了 / 出错？"
+
+    请阅读 [OJ 使用说明](#oj-使用说明)，了解测评流程，还有 OJ 环境与计算节点的差异，你可以按照以下思路来排查:
+    
+    1. 确定自己上传到 OJ sftp 的代码和本地是一致的，没有传错，可以使用 [OJ 使用说明](#oj-使用说明) 中给出的脚本来上传
+    1. OJ 只能访问集群公共 spack 内的环境，无法加载自行安装的，位于家目录下的 spack，请确保自己使用的编译器和 OJ 提交的版本一样
+    1. 编译参数选择也需要注意，如果优化选项开得比较猛，会出现架构不同导致的程序行为不同。
 
 ???+ success "Q: 实验文档太长了，我都要做哪些任务，可不可以简单讲一下?"
 
@@ -872,6 +890,20 @@ Bonus 部分完成即有加分 (完成 Bonus 部分实验要求，且能够通�
 
 请注意不要上传数据文件，上传成功后，可以使用 `ssh <用户名>+oj@clusters.zju.edu.cn submit lab4` 提交测评。
 
+可以使用下面的脚本来上传代码:
+
+```bash
+#!/usr/bin/env bash
+
+user=$(whoami)
+
+scp -r src $user+oj@clusters.zju.edu.cn:lab4/
+scp -r include $user+oj@clusters.zju.edu.cn:lab4/
+scp compile.sh $user+oj@clusters.zju.edu.cn:lab4/compile.sh
+scp run.sh $user+oj@clusters.zju.edu.cn:lab4/run.sh
+scp CMakeLists.txt $user+oj@clusters.zju.edu.cn:lab4/CMakeLists.txt
+```
+
 由于实验需要提交多个文件和文件夹，请务必注意上传到 OJ 的文件是否满足要求，如果需要操作文件结构，例如不小心上传错误文件，可以使用 `sftp` 交互式操作。
 
 ??? info "OJ 的测评流程"
@@ -900,7 +932,7 @@ Bonus 部分完成即有加分 (完成 Bonus 部分实验要求，且能够通�
 
 ???+ success "OJ 上如何加载编译与运行环境"
     
-    在 OJ 测评时，**只能访问集群 spack**, 因此如果你使用 spack 提供的编译器，需要在 `compile.sh` 和 `run.sh` 中添加:
+    在 OJ 测评时，**只能访问集群 spack**, 因此如果你使用 spack 提供的编译器，需要在 `compile.sh` 和 `run.sh` 中使用:
 
     ```bash
     source /pxe/opt/spack/share/spack/setup-env.sh
@@ -908,7 +940,7 @@ Bonus 部分完成即有加分 (完成 Bonus 部分实验要求，且能够通�
     spack load intel-oneapi-mpi intel-oneapi-compilers
     ```
 
-    同时，需要注意 OJ 编译使用的机器与计算节点架构不同，使用 `-march=native` 时，AVX512 将不可用。因此，你可以在 `CMakeLists.txt` 中根据需要选择下面的编译选项:
+    同时，需要注意 OJ 编译使用的机器与计算节点架构不同，使用 `-march=native` 或者 `-xHost` 时，AVX512 将不可用。因此，你可以在 `CMakeLists.txt` 中根据需要选择下面的编译选项:
 
     - `-march=icelake-server`: M600-M604 节点的架构 [Icelake](https://en.wikipedia.org/wiki/Ice_Lake_(microprocessor)#Ice_Lake-SP_(Xeon_Scalable))
     - `-march=sapphirerapids`: M700-M701 节点的架构 [Sapphire Rapids](https://en.wikipedia.org/wiki/Sapphire_Rapids) (如果你想尝试在 M7 运行的话)

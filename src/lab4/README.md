@@ -40,7 +40,7 @@
     └── main.cpp       # 主程序
 ```
 
-**严禁修改计时区**，因此对于 `src/main.cpp` 的修改，请仅限于添加 MPI 相关的代码。还有 `src/judger.cpp`, `include/judger.h` 不可以修改，其他部分都可以进行修改。
+**严禁修改计时区**，因此对于 `src/main.cpp` 的修改，请仅限于添加 MPI Init 和 Finialize 的代码。还有 `src/judger.cpp`, `include/judger.h` 不可以修改，其他部分都可以进行修改。
 
 如果希望提交到 OJ 测评，请注意：
 

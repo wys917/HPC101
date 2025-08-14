@@ -6,3 +6,6 @@ venv/
 .venv/
 site-slides/
 build/
+
+# python
+__pycache__/
