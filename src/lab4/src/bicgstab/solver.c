@@ -5,12 +5,12 @@
 #include <omp.h> // OpenMP for parallelization
 #include <mpi.h> 
 
-void gemv(double* __restrict y, double* __restrict A, double* __restrict x, int N) {
-    // y = A * x
-    for (int i = 0; i < N; i++) {
-        y[i] = 0.0;
+void gemv(double* __restrict y_local, double* __restrict A_local, double* __restrict x, int local_n, int N) {
+    // y_local = A_local * x
+    for (int i = 0; i < local_n; i++) {
+        y_local[i] = 0.0;
         for (int j = 0; j < N; j++) {
-            y[i] += A[i * N + j] * x[j];
+            y_local[i] += A_local[i * N + j] * x[j];
         }
     }
 }
@@ -51,16 +51,9 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
      * Reference: https://en.wikipedia.org/wiki/Biconjugate_gradient_stabilized_method
      */
     
-    double* r      = (double*)calloc(N, sizeof(double));
-    double* r_hat  = (double*)calloc(N, sizeof(double));
-    double* p      = (double*)calloc(N, sizeof(double));
-    double* v      = (double*)calloc(N, sizeof(double));
-    double* s      = (double*)calloc(N, sizeof(double));
-    double* h      = (double*)calloc(N, sizeof(double));
-    double* t      = (double*)calloc(N, sizeof(double));
-    double* y      = (double*)calloc(N, sizeof(double));
-    double* z      = (double*)calloc(N, sizeof(double));
-    double* K2_inv = (double*)calloc(N, sizeof(double));
+    // 声明全局向量（用于 MPI_Allgatherv 的接收缓冲区）
+    double* y = NULL;
+    double* z = NULL;
 
     double rho_old = 1, alpha = 1, omega = 1;
     double rho = 1, beta = 1;
@@ -82,10 +75,9 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
     // 在这行代码执行完毕后，村子里的所有进程，从0到size-1，
     // 它们的变量 N 的值就都变成一样的、正确的值了。
 
-    // 验证一下 (这是个好习惯，以后可以删掉):
-    if (rank == 1) { // 随便找个非0进程打印一下
-        printf("我是进程1, 我收到的 N 是: %d\n", N);
-    }
+    // 广播N后为全局向量分配内存
+    y = (double*)calloc(N, sizeof(double));
+    z = (double*)calloc(N, sizeof(double));
 
     // 2. 计算每个进程应该分到多少行
     int rows_per_proc = N / size;
@@ -238,39 +230,83 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
     
     // Take M_inv as the preconditioner
     // Note that we only use K2_inv (in wikipedia)
-    precondition(A, K2_inv, N);
-
-    // 1. r0 = b - A * x0
-    gemv(r, A, x, N);
-
+    // 计算本地预条件子：K2_inv_local = 1 / diag(A_local)
     for (int i = 0; i < local_n; i++) {
-        r_local[i] = b_local[i] - r_local[i];
+        K2_inv_local[i] = 1.0 / A_local[i * N + (offset + i)];
     }
 
-    // 2. Choose an arbitary vector r_hat that is not orthogonal to r
-    // We just take r_hat = r, please do not change this initial value
-    memmove(r_hat, r, N * sizeof(double));  // memmove is safer memcpy :)
+    // 1. r0 = b - A * x0 (compute local residual)
+    // First compute A_local * x into a temporary local array
+    double* Ax_local = (double*)calloc(local_n, sizeof(double));
+    gemv(Ax_local, A_local, x, local_n, N);
 
-    // 3. rho_0 = (r_hat, r)
-    rho = dot_product(r_hat, r, N);
+    for (int i = 0; i < local_n; i++) {
+        r_local[i] = b_local[i] - Ax_local[i];
+    }
+    
+    free(Ax_local);
 
-    // 4. p_0 = r_0
-    memmove(p, r, N * sizeof(double));
+    // 2. r_hat_local = r_local (本地操作)
+    memmove(r_hat_local, r_local, local_n * sizeof(double));
+
+    // 3. 并行计算 rho = (r_hat_local, r_local)
+    double local_rho = 0.0;
+    for (int i = 0; i < local_n; i++) {
+        local_rho += r_hat_local[i] * r_local[i];
+    }
+    
+ 
+    MPI_Allreduce(&local_rho, &rho, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+    // 4. p_0 = r_0 (本地操作)
+    memmove(p_local, r_local, local_n * sizeof(double));
 
     int iter;
+    // 在主循环开始前，需要先组合本地向量
+    // 创建用于MPI通信的缓冲区 - 所有进程都需要这些数组
+    int* recvcounts = (int*)malloc(size * sizeof(int));
+    int* displs_gather = (int*)malloc(size * sizeof(int));
+    
+    // 所有进程都计算相同的 recvcounts 和 displs_gather
+    int current_offset = 0;
+    for (int i = 0; i < size; i++) {
+        recvcounts[i] = (i < remainder_rows) ? rows_per_proc + 1 : rows_per_proc;
+        displs_gather[i] = current_offset;
+        current_offset += recvcounts[i];
+    }
+    
     for (iter = 1; iter <= max_iter; iter++) {
-        if (iter % 1000 == 0) {
-            printf("Iteration %d, residul = %e\n", iter, sqrt(dot_product(r, r, N)));
+        if (iter % 1000 == 0 && rank == 0) {
+            // 计算全局残差范数用于打印
+            double local_r_print = 0.0;
+            for (int i = 0; i < local_n; i++) {
+                local_r_print += r_local[i] * r_local[i];
+            }
+            double global_r_print;
+            MPI_Allreduce(&local_r_print, &global_r_print, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+            printf("Iteration %d, residul = %e\n", iter, sqrt(global_r_print));
         }
 
-        // 1. y = K2_inv * p (apply preconditioner)
-        precondition_apply(y, K2_inv, p, N);
+        // 1. y_local = K2_inv_local * p_local (apply preconditioner locally)
+        for (int i = 0; i < local_n; i++) {
+            y_local[i] = K2_inv_local[i] * p_local[i];
+        }
+        
+        // 收集所有进程的y_local组成完整的y向量
+        MPI_Allgatherv(y_local, local_n, MPI_DOUBLE, 
+                       y, recvcounts, displs_gather, MPI_DOUBLE, MPI_COMM_WORLD);
 
-        // 2. v = Ay
-        gemv(v, A, y, N);
+        // 2. v_local = A_local * y
+        gemv(v_local, A_local, y, local_n, N);
 
-        // 3. alpha = rho / (r_hat, v)
-        alpha = rho / dot_product(r_hat, v, N);
+        // 3. alpha = rho / (r_hat_local, v_local) - 并行点积
+        double local_dot_rv = 0.0;
+        for (int i = 0; i < local_n; i++) {
+            local_dot_rv += r_hat_local[i] * v_local[i];
+        }
+        double global_dot_rv;
+        MPI_Allreduce(&local_dot_rv, &global_dot_rv, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        alpha = rho / global_dot_rv;
 
         // 4. h = x_{i-1} + alpha * y
         for (int i = 0; i < local_n; i++) {
@@ -283,19 +319,42 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
         }
 
         // 6. Is h is accurate enough, then x_i = h and quit
-        if (dot_product(s, s, N) < tol_squared) {
-            memmove(x, h, N * sizeof(double));
+        double local_s_norm = 0.0;
+        for (int i = 0; i < local_n; i++) {
+            local_s_norm += s_local[i] * s_local[i];
+        }
+        double global_s_norm;
+        MPI_Allreduce(&local_s_norm, &global_s_norm, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        
+        if (global_s_norm < tol_squared) {
+            // 收集h_local组成完整的x
+            MPI_Allgatherv(h_local, local_n, MPI_DOUBLE,
+                           x, recvcounts, displs_gather, MPI_DOUBLE, MPI_COMM_WORLD);
             break;
         }
 
-        // 7. z = K2_inv * s
-        precondition_apply(z, K2_inv, s, N);
+        // 7. z_local = K2_inv_local * s_local
+        for (int i = 0; i < local_n; i++) {
+            z_local[i] = K2_inv_local[i] * s_local[i];
+        }
+        
+        // 收集所有进程的z_local组成完整的z向量
+        MPI_Allgatherv(z_local, local_n, MPI_DOUBLE,
+                       z, recvcounts, displs_gather, MPI_DOUBLE, MPI_COMM_WORLD);
 
-        // 8. t = Az
-        gemv(t, A, z, N);
+        // 8. t_local = A_local * z
+        gemv(t_local, A_local, z, local_n, N);
 
-        // 9. omega = (t, s) / (t, t)
-        omega = dot_product(t, s, N) / dot_product(t, t, N);
+        // 9. omega = (t_local, s_local) / (t_local, t_local) - 并行点积
+        double local_ts = 0.0, local_tt = 0.0;
+        for (int i = 0; i < local_n; i++) {
+            local_ts += t_local[i] * s_local[i];
+            local_tt += t_local[i] * t_local[i];
+        }
+        double global_ts, global_tt;
+        MPI_Allreduce(&local_ts, &global_ts, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        MPI_Allreduce(&local_tt, &global_tt, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        omega = global_ts / global_tt;
 
         // 10. x_i = h + omega * z
         for (int i = 0; i < local_n; i++) {
@@ -308,11 +367,21 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
         }
 
         // 12. If x_i is accurate enough, then quit
-        if (dot_product(r, r, N) < tol_squared) break;
+        double local_r_norm = 0.0;
+        for (int i = 0; i < local_n; i++) {
+            local_r_norm += r_local[i] * r_local[i];
+        }
+        double global_r_norm;
+        MPI_Allreduce(&local_r_norm, &global_r_norm, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        if (global_r_norm < tol_squared) break;
 
-        rho_old = rho;
-        // 13. rho_i = (r_hat, r)
-        rho = dot_product(r_hat, r, N);
+        double rho_old = rho;
+        // 13. rho_i = (r_hat_local, r_local) - 并行点积
+        double local_rho_new = 0.0;
+        for (int i = 0; i < local_n; i++) {
+            local_rho_new += r_hat_local[i] * r_local[i];
+        }
+        MPI_Allreduce(&local_rho_new, &rho, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
         // 14. beta = (rho_i / rho_{i-1}) * (alpha / omega)
         beta = (rho / rho_old) * (alpha / omega);
@@ -323,16 +392,17 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
         }
     }
 
-    free(r);
-    free(r_hat);
-    free(p);
-    free(v);
-    free(s);
-    free(h);
-    free(t);
+    // 收集最终的x_local到完整的x向量
+    MPI_Allgatherv(x_local, local_n, MPI_DOUBLE,
+                   x, recvcounts, displs_gather, MPI_DOUBLE, MPI_COMM_WORLD);
+    
+    // 清理MPI通信缓冲区
+    free(recvcounts);
+    free(displs_gather);
+
+    // 释放全局向量
     free(y);
     free(z);
-    free(K2_inv);
     
     // 释放本地数组
     free(A_local);
