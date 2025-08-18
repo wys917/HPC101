@@ -28,6 +28,7 @@ add_library(judger OBJECT ${COMMON_SOURCES})
 if(EXISTS "${CMAKE_SOURCE_DIR}/src/bicgstab/solver.c")
   add_executable(bicgstab src/bicgstab/solver.c $<TARGET_OBJECTS:judger>)
   target_link_libraries(bicgstab PRIVATE MPI::MPI_CXX)
+  
 endif()
 
 # If found Fortran implementation, add it to the build
