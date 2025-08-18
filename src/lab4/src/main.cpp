@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <iostream>
-
+#include <mpi.h>
 #include "judger.h"
 
 extern "C" int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol);
@@ -8,7 +8,7 @@ extern "C" int bicgstab(int N, double* A, double* b, double* x, int max_iter, do
 int main(int argc, char* argv[]) {
     int world_size, world_rank = 0;
     // When using MPI, please remember to initialize here
-
+    MPI_Init(NULL, NULL);
     if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " <input_data>" << std::endl;
         return -1;
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     free(A);
     free(b);
     free(x);
-
+    MPI_Finalize();
     // When using MPI, please remember to finalize here
     return 0;
 }

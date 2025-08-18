@@ -2,20 +2,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <omp.h> // OpenMP for parallelization
+#include <mpi.h> 
 
 void gemv(double* __restrict y, double* __restrict A, double* __restrict x, int N) {
     // y = A * x
+    // 正确实现：仅对数据独立的外层循环进行粗粒度并行
+    #pragma omp parallel for
     for (int i = 0; i < N; i++) {
-        y[i] = 0.0;
+        // 将累加器'sum'定义在循环内部，使其成为线程私有变量
+        double sum = 0.0; 
         for (int j = 0; j < N; j++) {
-            y[i] += A[i * N + j] * x[j];
+            sum += A[i * N + j] * x[j];
         }
+        // 每个线程写入y数组的不同位置，不存在写冲突
+        y[i] = sum;
     }
 }
 
 double dot_product(double* __restrict x, double* __restrict y, int N) {
     // dot product of x and y
     double result = 0.0;
+
     for (int i = 0; i < N; i++) {
         result += x[i] * y[i];
     }
@@ -24,6 +32,7 @@ double dot_product(double* __restrict x, double* __restrict y, int N) {
 
 void precondition(double* __restrict A, double* __restrict K2_inv, int N) {
     // K2_inv = 1 / diag(A)
+
     for (int i = 0; i < N; i++) {
         K2_inv[i] = 1.0 / A[i * N + i];
     }
@@ -31,6 +40,7 @@ void precondition(double* __restrict A, double* __restrict K2_inv, int N) {
 
 void precondition_apply(double* __restrict z, double* __restrict K2_inv, double* __restrict r, int N) {
     // z = K2_inv * r
+
     for (int i = 0; i < N; i++) {
         z[i] = K2_inv[i] * r[i];
     }
@@ -45,6 +55,7 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
      *  K2_inv: preconditioner (We only store the diagonal of K2_inv)
      * Reference: https://en.wikipedia.org/wiki/Biconjugate_gradient_stabilized_method
      */
+    
     double* r      = (double*)calloc(N, sizeof(double));
     double* r_hat  = (double*)calloc(N, sizeof(double));
     double* p      = (double*)calloc(N, sizeof(double));
@@ -60,12 +71,35 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
     double rho = 1, beta = 1;
     double tol_squared = tol * tol;
 
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    // ================== 你要加的代码在这里 ==================
+    // 步骤1: 广播问题规模 N
+    // 在调用这个函数时：
+    // - 对于 rank 0, N 是从 main 函数传来的正确值。
+    // - 对于其他 rank, N 是一个垃圾值。
+    // MPI_Bcast 会把 rank 0 的 N 的值，覆盖掉所有其他进程里的 N 的值。
+    MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    // =======================================================
+
+    // 在这行代码执行完毕后，村子里的所有进程，从0到size-1，
+    // 它们的变量 N 的值就都变成一样的、正确的值了。
+
+    // 验证一下 (这是个好习惯，以后可以删掉):
+    if (rank == 1) { // 随便找个非0进程打印一下
+        printf("我是进程1, 我收到的 N 是: %d\n", N);
+    }
+
+    
     // Take M_inv as the preconditioner
     // Note that we only use K2_inv (in wikipedia)
     precondition(A, K2_inv, N);
 
     // 1. r0 = b - A * x0
     gemv(r, A, x, N);
+
     for (int i = 0; i < N; i++) {
         r[i] = b[i] - r[i];
     }
@@ -96,11 +130,13 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
         alpha = rho / dot_product(r_hat, v, N);
 
         // 4. h = x_{i-1} + alpha * y
+  
         for (int i = 0; i < N; i++) {
             h[i] = x[i] + alpha * y[i];
         }
 
         // 5. s = r_{i-1} - alpha * v
+       
         for (int i = 0; i < N; i++) {
             s[i] = r[i] - alpha * v[i];
         }
@@ -121,11 +157,13 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
         omega = dot_product(t, s, N) / dot_product(t, t, N);
 
         // 10. x_i = h + omega * z
+ 
         for (int i = 0; i < N; i++) {
             x[i] = h[i] + omega * z[i];
         }
 
         // 11. r_i = s - omega * t
+ 
         for (int i = 0; i < N; i++) {
             r[i] = s[i] - omega * t[i];
         }
@@ -141,6 +179,7 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
         beta = (rho / rho_old) * (alpha / omega);
 
         // 15. p_i = r_i + beta * (p_{i-1} - omega * v)
+   
         for (int i = 0; i < N; i++) {
             p[i] = r[i] + beta * (p[i] - omega * v[i]);
         }

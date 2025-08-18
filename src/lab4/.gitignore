@@ -1,0 +1,25 @@
+# Build artifacts
+build/
+compile_commands.json
+
+# Backup files
+*~
+*.swp
+*.swo
+
+# Log and output files
+*.out
+*.err
+*.log
+
+# Data files (如果你的数据文件夹叫data)
+data/
+
+# Profiling reports
+*.vtune
+*.ncu-rep
+reports/
+
+# IDE specific
+.vscode/
+.idea/

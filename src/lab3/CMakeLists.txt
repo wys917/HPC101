@@ -88,3 +88,15 @@ target_compile_options(conv_half_ptx PRIVATE -DBATCH_SIZE=${BATCH_SIZE}
                                     -DUSE_HALF)
 set_target_properties(conv_half_ptx PROPERTIES CUDA_PTX_COMPILATION ON
                                     OUTPUT_NAME conv_half.ptx)
+# Add optimized version
+add_executable(conv_optimized src/main.cu src/conv.cu)
+target_include_directories(conv_optimized PRIVATE ${CUTLASS_INCLUDE_DIR})
+target_compile_options(conv_optimized PRIVATE -O3 -Xcompiler -fopenmp)
+set_target_properties(conv_optimized PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+target_link_libraries(conv_optimized OpenMP::OpenMP_CXX)
+target_compile_options(conv_optimized PRIVATE -DBATCH_SIZE=${BATCH_SIZE} 
+                                    -DINPUT_SIZE=${INPUT_SIZE} 
+                                    -DKERNEL_SIZE=${KERNEL_SIZE} 
+                                    -DIN_CHANNEL=${IN_CHANNEL} 
+                                    -DOUT_CHANNEL=${OUT_CHANNEL}
+                                    -DUSE_INT8)
