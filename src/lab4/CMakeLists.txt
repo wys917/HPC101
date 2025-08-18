@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.12)
 project(bicgstab C CXX Fortran)
 find_package(MPI REQUIRED)
-find_package(OpenMP REQUIRED)
+#find_package(OpenMP REQUIRED)
 # Uncomment below is MPI env is available
 # find_package(MPI REQUIRED)
 
 # Set Compiler
-set(CMAKE_C_COMPILER "gcc")
-set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_Fortran_COMPILER "gfortran")
+set(CMAKE_C_COMPILER "mpicc")
+set(CMAKE_CXX_COMPILER "mpicxx")
+set(CMAKE_Fortran_COMPILER "mpifort")
 
 # Set flags
-set(CMAKE_C_FLAGS "-O2 -g -fopenmp")
-set(CMAKE_CXX_FLAGS "-O2 -g -fopenmp")
+set(CMAKE_C_FLAGS "-O2 -g ")
+set(CMAKE_CXX_FLAGS "-O2 -g ")
 set(CMAKE_Fortran_FLAGS "-O2 -g")
 
 # Include headers
