@@ -3,8 +3,8 @@
 #SBATCH --output=run.out
 #SBATCH --error=run.err
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=16
-#SBATCH --cpus-per-task=1
+#SBATCH --ntasks-per-node=4
+#SBATCH --cpus-per-task=4
 #SBATCH --time=00:10:00
 #SBATCH --partition=M7
 
@@ -23,10 +23,12 @@ unset I_MPI_PMI_LIBRARY
 export I_MPI_HYDRA_BOOTSTRAP=slurm
 export I_MPI_PMI=pmi2
 
+export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
+
 mkdir -p reports
 
 # 使用 srun 启动 MPI 程序
-srun -n 16 --mpi=pmi2 ./build/bicgstab data/case_2001.bin
+srun -n 4 --mpi=pmi2 ./build/bicgstab data/case_2001.bin
 
 
 # Run BICGSTAB

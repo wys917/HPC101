@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.12)
 project(bicgstab C CXX Fortran)
 find_package(MPI REQUIRED)
-#find_package(OpenMP REQUIRED)
+find_package(OpenMP REQUIRED)
 # Uncomment below is MPI env is available
-# find_package(MPI REQUIRED)
+
 
 # Set Compiler
 set(CMAKE_C_COMPILER "mpicc")
@@ -11,8 +11,8 @@ set(CMAKE_CXX_COMPILER "mpicxx")
 set(CMAKE_Fortran_COMPILER "mpifort")
 
 # Set flags
-set(CMAKE_C_FLAGS "-O2 -g ")
-set(CMAKE_CXX_FLAGS "-O2 -g ")
+set(CMAKE_C_FLAGS "-O2 -g -fopenmp")
+set(CMAKE_CXX_FLAGS "-O2 -g -fopenmp")
 set(CMAKE_Fortran_FLAGS "-O2 -g")
 
 # Include headers
@@ -27,8 +27,7 @@ add_library(judger OBJECT ${COMMON_SOURCES})
 # If found C implementation, add it to the build
 if(EXISTS "${CMAKE_SOURCE_DIR}/src/bicgstab/solver.c")
   add_executable(bicgstab src/bicgstab/solver.c $<TARGET_OBJECTS:judger>)
-  target_link_libraries(bicgstab PRIVATE MPI::MPI_CXX)
-  
+  target_link_libraries(bicgstab PRIVATE OpenMP::OpenMP_CXX)
 endif()
 
 # If found Fortran implementation, add it to the build
