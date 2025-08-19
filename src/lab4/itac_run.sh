@@ -22,3 +22,5 @@ export I_MPI_PMI_LIBRARY=/slurm/libpmi2.so.0.0.0
 mpirun -n ${SLURM_NTASKS} -ppn ${SLURM_NTASKS_PER_NODE} \
        -bootstrap slurm \
        -trace ./build/bicgstab $1
+
+echo "done"
