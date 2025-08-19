@@ -19,20 +19,7 @@
 source /pxe/opt/spack/share/spack/setup-env.sh
 spack env activate hpc101-intel
 
-# 根据提示，设置 OpenMP 线程数为申请到的逻辑核心数的一半（即物理核心数）
-export OMP_NUM_THREADS=$((SLURM_CPUS_PER_TASK / 2))
-#echo "Running with ${OMP_NUM_THREADS} OpenMP threads..."
-echo "Node: $(hostname), Rank: ${SLURM_PROCID}, Threads: ${OMP_NUM_THREADS}"
-
-# Run BICGSTAB
-#./build/bicgstab $1
-
-# 使用 vtune 运行程序
-# -result-dir r000hs: 将结果保存在名为 r000hs 的文件夹中
-#vtune -collect hotspots -result-dir r000hs ./build/bicgstab $1
-#vtune -collect uarch-exploration -result-dir r001ue_simd ./build/bicgstab $1
-#vtune -collect hotspots -result-dir mpi -- \
-#srun --mpi=pmi2 ./build/bicgstab $1
+export OMP_NUM_THREADS=48
 
 # 添加 Intel MPI 在 Slurm 上运行所需的环境变量
 export I_MPI_PMI_LIBRARY=/slurm/libpmi2.so.0.0.0
