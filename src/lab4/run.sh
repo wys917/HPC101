@@ -8,7 +8,6 @@
 #SBATCH --time=00:2:00
 #SBATCH --partition=solver2
 
-
 # 对于 sbatch 脚本参数，请阅读 https://slurm.schedmd.com/sbatch.html
 # ntasks-per-node 对应每个节点上的进程数
 # cpus-per-task 对应每个进程的线程数
