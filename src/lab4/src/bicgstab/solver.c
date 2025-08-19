@@ -7,16 +7,11 @@
 
 void gemv(double* __restrict y_local, double* __restrict A_local, double* __restrict x, int local_n, int N) {
     // y_local = A_local * x
-    // 优化内存访问模式，提高缓存效率
-    #pragma omp parallel for
     for (int i = 0; i < local_n; i++) {
-        double sum = 0.0;
-        double* A_row = &A_local[i * N]; // 获取第i行的指针
-        // 内循环现在是连续访问A_row[j]，提高缓存命中率
+        y_local[i] = 0.0;
         for (int j = 0; j < N; j++) {
-            sum += A_row[j] * x[j];
+            y_local[i] += A_local[i * N + j] * x[j];
         }
-        y_local[i] = sum;
     }
 }
 
@@ -65,8 +60,6 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
     double tol_squared = tol * tol;
 
     int rank, size;
-    // MPI_Init_thread 应该在 main.cpp 里被调用
-    // 在这里，我们只获取 rank 和 size
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
@@ -233,12 +226,6 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
         MPI_COMM_WORLD  // 通信器：所有进程都参与
     );
 
-    // ========== 关键修复：初始化x_local ==========
-    // 从完整的x向量中复制当前进程负责的部分到x_local
-    for (int i = 0; i < local_n; i++) {
-        x_local[i] = x[offset + i];
-    }
-
 
     
     // Take M_inv as the preconditioner
@@ -289,8 +276,8 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
     }
     
     for (iter = 1; iter <= max_iter; iter++) {
-        if (iter % 5000 == 0 && rank == 0) {
-            // 减少打印频率，从每1000次改为每5000次
+        if (iter % 1000 == 0 && rank == 0) {
+            // 计算全局残差范数用于打印
             double local_r_print = 0.0;
             for (int i = 0; i < local_n; i++) {
                 local_r_print += r_local[i] * r_local[i];
@@ -300,118 +287,106 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
             printf("Iteration %d, residul = %e\n", iter, sqrt(global_r_print));
         }
 
-        // 1. 本地计算 y_local
-        #pragma omp parallel for
+        // 1. y_local = K2_inv_local * p_local (apply preconditioner locally)
         for (int i = 0; i < local_n; i++) {
             y_local[i] = K2_inv_local[i] * p_local[i];
         }
+        
+        // 收集所有进程的y_local组成完整的y向量
+        MPI_Allgatherv(y_local, local_n, MPI_DOUBLE, 
+                       y, recvcounts, displs_gather, MPI_DOUBLE, MPI_COMM_WORLD);
 
-        MPI_Allgatherv(y_local, local_n, MPI_DOUBLE, y, recvcounts, displs_gather, MPI_DOUBLE, MPI_COMM_WORLD);
-
-        // 2. 本地计算 v_local
+        // 2. v_local = A_local * y
         gemv(v_local, A_local, y, local_n, N);
 
-        // 3. alpha计算
+        // 3. alpha = rho / (r_hat_local, v_local) - 并行点积
         double local_dot_rv = 0.0;
-        #pragma omp parallel for reduction(+:local_dot_rv)
         for (int i = 0; i < local_n; i++) {
             local_dot_rv += r_hat_local[i] * v_local[i];
         }
-        
         double global_dot_rv;
         MPI_Allreduce(&local_dot_rv, &global_dot_rv, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
         alpha = rho / global_dot_rv;
 
         // 4. h = x_{i-1} + alpha * y
-        #pragma omp parallel for
         for (int i = 0; i < local_n; i++) {
             h_local[i] = x_local[i] + alpha * y_local[i];
         }
 
         // 5. s = r_{i-1} - alpha * v
-        #pragma omp parallel for
         for (int i = 0; i < local_n; i++) {
             s_local[i] = r_local[i] - alpha * v_local[i];
         }
 
-        // 6. 收敛性检查
+        // 6. Is h is accurate enough, then x_i = h and quit
         double local_s_norm = 0.0;
-        #pragma omp parallel for reduction(+:local_s_norm)
         for (int i = 0; i < local_n; i++) {
             local_s_norm += s_local[i] * s_local[i];
         }
-        
         double global_s_norm;
         MPI_Allreduce(&local_s_norm, &global_s_norm, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
         
         if (global_s_norm < tol_squared) {
-            MPI_Allgatherv(h_local, local_n, MPI_DOUBLE, x, recvcounts, displs_gather, MPI_DOUBLE, MPI_COMM_WORLD);
+            // 收集h_local组成完整的x
+            MPI_Allgatherv(h_local, local_n, MPI_DOUBLE,
+                           x, recvcounts, displs_gather, MPI_DOUBLE, MPI_COMM_WORLD);
             break;
         }
 
         // 7. z_local = K2_inv_local * s_local
-        #pragma omp parallel for
         for (int i = 0; i < local_n; i++) {
             z_local[i] = K2_inv_local[i] * s_local[i];
         }
         
-        MPI_Allgatherv(z_local, local_n, MPI_DOUBLE, z, recvcounts, displs_gather, MPI_DOUBLE, MPI_COMM_WORLD);
+        // 收集所有进程的z_local组成完整的z向量
+        MPI_Allgatherv(z_local, local_n, MPI_DOUBLE,
+                       z, recvcounts, displs_gather, MPI_DOUBLE, MPI_COMM_WORLD);
 
         // 8. t_local = A_local * z
         gemv(t_local, A_local, z, local_n, N);
 
-        // 9. omega计算
+        // 9. omega = (t_local, s_local) / (t_local, t_local) - 并行点积
         double local_ts = 0.0, local_tt = 0.0;
-        #pragma omp parallel for reduction(+:local_ts,local_tt)
         for (int i = 0; i < local_n; i++) {
             local_ts += t_local[i] * s_local[i];
             local_tt += t_local[i] * t_local[i];
         }
-        
         double global_ts, global_tt;
         MPI_Allreduce(&local_ts, &global_ts, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
         MPI_Allreduce(&local_tt, &global_tt, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
         omega = global_ts / global_tt;
 
         // 10. x_i = h + omega * z
-        #pragma omp parallel for
         for (int i = 0; i < local_n; i++) {
             x_local[i] = h_local[i] + omega * z_local[i];
         }
 
         // 11. r_i = s - omega * t
-        #pragma omp parallel for
         for (int i = 0; i < local_n; i++) {
             r_local[i] = s_local[i] - omega * t_local[i];
         }
 
-        // 12. 第二次收敛性检查
+        // 12. If x_i is accurate enough, then quit
         double local_r_norm = 0.0;
-        #pragma omp parallel for reduction(+:local_r_norm)
         for (int i = 0; i < local_n; i++) {
             local_r_norm += r_local[i] * r_local[i];
         }
-        
         double global_r_norm;
         MPI_Allreduce(&local_r_norm, &global_r_norm, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-        
         if (global_r_norm < tol_squared) break;
 
-        // 13. rho计算 - 先保存旧值，然后计算新值
-        rho_old = rho; // <-- 正确：赋值给已经声明的rho_old
+        double rho_old = rho;
+        // 13. rho_i = (r_hat_local, r_local) - 并行点积
         double local_rho_new = 0.0;
-        #pragma omp parallel for reduction(+:local_rho_new)
         for (int i = 0; i < local_n; i++) {
             local_rho_new += r_hat_local[i] * r_local[i];
         }
-        
         MPI_Allreduce(&local_rho_new, &rho, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
         // 14. beta = (rho_i / rho_{i-1}) * (alpha / omega)
         beta = (rho / rho_old) * (alpha / omega);
 
         // 15. p_i = r_i + beta * (p_{i-1} - omega * v)
-        #pragma omp parallel for
         for (int i = 0; i < local_n; i++) {
             p_local[i] = r_local[i] + beta * (p_local[i] - omega * v_local[i]);
         }
