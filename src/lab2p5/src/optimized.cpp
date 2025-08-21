@@ -1,82 +1,78 @@
-
-#include "gemm.h"
+#include <cstdint>
+#include <cstddef>
+#include <vector> // 为了使用 std::vector 来创建临时转置矩阵
 #include <riscv_vector.h>
-#include <stddef.h>
 
-#define BLOCK_M 4
-#define BLOCK_N 2
+#define IME_BLOCK_M 4
+#define IME_BLOCK_N 4
+#define IME_BLOCK_K 8
 
-// 4x2 微内核：一次计算 4 行 × 2 列；使用“分段向量 + 逐段归约”策略，避免跨段累加时的 vl 混淆。
-static inline void micro_kernel_4x2(uint8_t* A, int8_t* B, int32_t* C,
-                                    int n, int k, int i0, int j0) {
-    const int K4 = k * 4;          // 每行/列真实元素数
+/**
+ * @brief 最终修正版的4x4微内核。
+ * 该内核基于以下“正确”的假设：
+ * 1. B矩阵已经是转置的，所以我们可以高效地加载数据。
+ * 2. vmadotus指令本身就是累加操作 (vd += A*B)。
+ * 3. K维度是展开后的总长度 k_total。
+ */
+static inline void micro_kernel_4x4_ime(
+    const uint8_t* A, 
+    const int8_t* B_T, // 注意：接收的是转置后的B矩阵
+    int32_t* C,
+    int n,              // C的列数
+    int k_total,        // 展开后的K维度
+    int i0, 
+    int j0
+) {
+    vint32m2_t vacc;
+    size_t vl_32 = __riscv_vsetvl_e32m2(16);
+    vacc = __riscv_vmv_v_x_i32m2(0, vl_32);
 
-    // 8 个标量累加器（行 × 列）
-    int32_t s00=0, s01=0,
-            s10=0, s11=0,
-            s20=0, s21=0,
-            s30=0, s31=0;
+    for (int kk = 0; kk < k_total; kk += IME_BLOCK_K) {
+        size_t vl_64 = __riscv_vsetvl_e64m1(4);
 
-    // 指向 4 行 A 以及 2 列 B 起始
-    uint8_t* a0 = &A[(i0 + 0) * K4];
-    uint8_t* a1 = &A[(i0 + 1) * K4];
-    uint8_t* a2 = &A[(i0 + 2) * K4];
-    uint8_t* a3 = &A[(i0 + 3) * K4];
-    int8_t*  b0 = &B[(j0 + 0) * K4];
-    int8_t*  b1 = &B[(j0 + 1) * K4];
+        const uint8_t* a_ptr = &A[i0 * k_total + kk];
+        vuint64m1_t va_64 = __riscv_vlse64_v_u64m1(reinterpret_cast<const uint64_t*>(a_ptr), k_total * sizeof(uint8_t), vl_64);
 
-    for (int kk = 0; kk < K4; ) {
-        size_t vl = __riscv_vsetvl_e8m1((size_t)(K4 - kk));
+        const int8_t* b_ptr = &B_T[j0 * k_total + kk];
+        vint64m1_t vb_64 = __riscv_vlse64_v_i64m1(reinterpret_cast<const int64_t*>(b_ptr), k_total * sizeof(int8_t), vl_64);
 
-        // 加载 8bit 源
-        vuint8m1_t va0 = __riscv_vle8_v_u8m1(a0 + kk, vl);
-        vuint8m1_t va1 = __riscv_vle8_v_u8m1(a1 + kk, vl);
-        vuint8m1_t va2 = __riscv_vle8_v_u8m1(a2 + kk, vl);
-        vuint8m1_t va3 = __riscv_vle8_v_u8m1(a3 + kk, vl);
-        vint8m1_t  vb0 = __riscv_vle8_v_i8m1(b0 + kk, vl);
-        vint8m1_t  vb1 = __riscv_vle8_v_i8m1(b1 + kk, vl);
+        // --- 就是这两行，我之前手滑了 ---
+        vuint8m1_t va_8 = __riscv_vreinterpret_v_u64m1_u8m1(va_64);
+        vint8m1_t  vb_8 = __riscv_vreinterpret_v_i64m1_i8m1(vb_64);
+        // --------------------------------
 
-        // (uint8 * int8) -> int16  宽乘：使用 vwmulsu_vv （signed * unsigned）
-        vint16m2_t p00 = __riscv_vwmulsu_vv_i16m2(vb0, va0, vl);
-        vint16m2_t p01 = __riscv_vwmulsu_vv_i16m2(vb1, va0, vl);
-        vint16m2_t p10 = __riscv_vwmulsu_vv_i16m2(vb0, va1, vl);
-        vint16m2_t p11 = __riscv_vwmulsu_vv_i16m2(vb1, va1, vl);
-        vint16m2_t p20 = __riscv_vwmulsu_vv_i16m2(vb0, va2, vl);
-        vint16m2_t p21 = __riscv_vwmulsu_vv_i16m2(vb1, va2, vl);
-        vint16m2_t p30 = __riscv_vwmulsu_vv_i16m2(vb0, va3, vl);
-        vint16m2_t p31 = __riscv_vwmulsu_vv_i16m2(vb1, va3, vl);
-
-        // (int16) 分别宽归约到 int32 标量
-        vint32m1_t zero32 = __riscv_vmv_v_x_i32m1(0, 1);
-        // 宽归约：把 int16m2 -> int32m1 并做求和
-        vint32m1_t r;
-        r = __riscv_vwredsum_vs_i16m2_i32m1(p00, zero32, vl); s00 += __riscv_vmv_x_s_i32m1_i32(r);
-        r = __riscv_vwredsum_vs_i16m2_i32m1(p01, zero32, vl); s01 += __riscv_vmv_x_s_i32m1_i32(r);
-        r = __riscv_vwredsum_vs_i16m2_i32m1(p10, zero32, vl); s10 += __riscv_vmv_x_s_i32m1_i32(r);
-        r = __riscv_vwredsum_vs_i16m2_i32m1(p11, zero32, vl); s11 += __riscv_vmv_x_s_i32m1_i32(r);
-        r = __riscv_vwredsum_vs_i16m2_i32m1(p20, zero32, vl); s20 += __riscv_vmv_x_s_i32m1_i32(r);
-        r = __riscv_vwredsum_vs_i16m2_i32m1(p21, zero32, vl); s21 += __riscv_vmv_x_s_i32m1_i32(r);
-        r = __riscv_vwredsum_vs_i16m2_i32m1(p30, zero32, vl); s30 += __riscv_vmv_x_s_i32m1_i32(r);
-        r = __riscv_vwredsum_vs_i16m2_i32m1(p31, zero32, vl); s31 += __riscv_vmv_x_s_i32m1_i32(r);
-
-        kk += (int)vl;
+        asm volatile(
+            "vmadotus %[vd], %[vs1], %[vs2]\n\t"
+            : [vd] "+vr"(vacc)
+            : [vs1] "vr"(va_8), [vs2] "vr"(vb_8)
+        );
     }
 
-    // 写回 (注意边界)
-    C[(i0 + 0) * n + (j0 + 0)] = s00;
-    C[(i0 + 0) * n + (j0 + 1)] = s01;
-    C[(i0 + 1) * n + (j0 + 0)] = s10;
-    C[(i0 + 1) * n + (j0 + 1)] = s11;
-    C[(i0 + 2) * n + (j0 + 0)] = s20;
-    C[(i0 + 2) * n + (j0 + 1)] = s21;
-    C[(i0 + 3) * n + (j0 + 0)] = s30;
-    C[(i0 + 3) * n + (j0 + 1)] = s31;
+    int32_t temp_c[16];
+    __riscv_vsetvl_e32m2(16);
+    __riscv_vse32_v_i32m2(temp_c, vacc, 16);
+
+    for (int row_offset = 0; row_offset < IME_BLOCK_M; ++row_offset) {
+        for (int col_offset = 0; col_offset < IME_BLOCK_N; ++col_offset) {
+            C[(i0 + row_offset) * n + (j0 + col_offset)] = temp_c[row_offset * IME_BLOCK_N + col_offset];
+        }
+    }
 }
 
+// 最终版的顶层函数
+// 假设B已经是转置的，这是正确的顶层函数
 void optimized_gemm(uint8_t* A, int8_t* B, int32_t* C, int m, int n, int k) {
-    for (int i = 0; i < m; i += BLOCK_M) {
-        for (int j = 0; j < n; j += BLOCK_N) {
-            micro_kernel_4x2(A, B, C, n, k, i, j);
+    // 1. K维度依然要修正
+    const int k_total = k * 4;
+
+    // 2. B矩阵已经是转置的，所以不需要任何操作！
+    //    直接把它当成 B_T 来用。
+
+    // 3. 在C矩阵上进行分块计算
+    for (int i = 0; i < m; i += IME_BLOCK_M) {
+        for (int j = 0; j < n; j += IME_BLOCK_N) {
+            // 直接把输入的 B 指针传给微内核，因为它就是我们想要的 B_T
+            micro_kernel_4x4_ime(A, B, C, n, k_total, i, j);
         }
     }
 }
