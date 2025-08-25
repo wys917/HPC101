@@ -49,5 +49,19 @@ class Qwen3MLP(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # TODO: 根据实验文档 2.9 节完成 FFN 模块的实现
-
-        return x
+        
+        # 1. 计算门控投影和上投影
+        gate = self.gate_proj(x)  # [batch, seq_len, intermediate_size]
+        up = self.up_proj(x)      # [batch, seq_len, intermediate_size]
+        
+        # 2. 应用SwiGLU激活函数：SwiGLU(x) = SiLU(gate) ⊙ up
+        # SiLU(x) = x * sigmoid(x)
+        silu_gate = gate * torch.sigmoid(gate)
+        
+        # 3. 元素级相乘
+        intermediate = silu_gate * up
+        
+        # 4. 下投影回原维度
+        output = self.down_proj(intermediate)
+        
+        return output

@@ -118,24 +118,57 @@ class Qwen3Attention(nn.Module):
         attention_mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         # 请参照实验文档 2.8 节完成 Self-Attention 模块的实现
+        
+        bsz, q_len, _ = hidden_states.size()
 
         # TODO: 根据 1-3 步完成 Q, K, V 的准备
-        query_states = hidden_states  # 这里只是一个占位符，实际代码需要替换
-        key_states = hidden_states
-        value_states = hidden_states
+        # 1. QKV投影：通过线性层获得Q, K, V
+        query_states = self.q_proj(hidden_states)
+        key_states = self.k_proj(hidden_states)
+        value_states = self.v_proj(hidden_states)
+
+        # 2. 形状变换：重塑为多头格式 [batch, num_heads, seq_len, head_dim]
+        query_states = query_states.view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
+        key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
+        value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
+
+        # 3. Q/K Normalization：对Q和K进行RMSNorm归一化
+        query_states = self.q_norm(query_states)
+        key_states = self.k_norm(key_states)
 
         # TODO: 应用 RoPE
+        # 4. 应用RoPE位置编码
         kv_seq_len = key_states.shape[-2]
         cos, sin = self.rotary_emb(value_states, seq_len=kv_seq_len)
+        query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin)
 
         # TODO: 根据第 5 步完成 GQA 机制的实现
+        # 5. GQA：重复K和V以匹配Q的头数
+        key_states = self._repeat_kv(key_states, self.num_key_value_groups)
+        value_states = self._repeat_kv(value_states, self.num_key_value_groups)
 
         # TODO: 根据第 6 步完成注意力计算
+        # 6. 计算注意力分数
+        attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
+        
+        # 应用attention mask（如果提供的话）
+        if attention_mask is not None:
+            # attention_mask已经由模型框架预处理，直接相加即可
+            attn_weights = attn_weights + attention_mask
+        
+        # 应用softmax
+        attn_weights = F.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+        
+        # 计算注意力输出
+        attn_output = torch.matmul(attn_weights, value_states)
 
         # TODO: 根据第 7 步完成输出投影
+        # 7. 重塑输出并应用输出投影
+        attn_output = attn_output.transpose(1, 2).contiguous()
+        attn_output = attn_output.reshape(bsz, q_len, self.hidden_size)
+        attn_output = self.o_proj(attn_output)
 
-        # 这里的 hidden_states 只是一个占位符，需要替换为实际的注意力输出
-        return hidden_states
+        return attn_output
 
     def _repeat_kv(self, hidden_states: torch.Tensor, n_rep: int) -> torch.Tensor:
         """
