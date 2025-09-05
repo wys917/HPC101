@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/hpc101/h3240103466/HPC101/src/lab5/main.py", line 6, in <module>
+    from pynvml import * # 导入真正的武器
+    ^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'pynvml'
+GPU程序执行完成！

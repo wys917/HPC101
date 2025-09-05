@@ -1,0 +1,15 @@
+--- Final Model Loading Verification ---
+PyTorch Version: 2.6.0+cu124
+Is CUDA available?: True
+GPU Name: Tesla V100-SXM2-32GB
+==================================================
+[Mon Aug 25 22:11:15 2025] ACTION: Attempting to load model with device='cuda'...
+[Mon Aug 25 22:11:19 2025] SUCCESS: 'from_pretrained' call completed without error.
+--------------------------------------------------
+CRITICAL CHECK 1: Model's output layer (lm_head) is on device: 【cuda:0】
+CRITICAL CHECK 2: Model's first decoder layer is on device: 【cuda:0】
+--------------------------------------------------
+
+VERDICT: The model claims to be on the GPU. This is truly bizarre.
+
+--- Final Check Finished ---

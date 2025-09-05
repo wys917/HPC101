@@ -1,0 +1,31 @@
+/var/spool/slurmd/job47450/slurm_script: line 19: /home/hpc101/h3240103466/miniconda3/etc/profile.d/conda.sh: No such file or directory
+
+CondaError: Run 'conda init' before 'conda activate'
+
+Traceback (most recent call last):
+  File "/home/hpc101/h3240103466/HPC101/src/lab5/calculate_params.py", line 6, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
+Lmod has detected the following error: The following module(s) are unknown:
+"anaconda3"
+
+Please check the spelling or version number. Also try "module spider ..."
+It is also possible your cache file is out-of-date; it may help to try:
+  $ module --ignore_cache load "anaconda3"
+
+Also make sure that all modulefiles written in TCL start with the string
+#%Module
+
+
+
+/var/spool/slurmd/job47450/slurm_script: line 42: activate: No such file or directory
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'torch'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'torch'
+Traceback (most recent call last):
+  File "/home/hpc101/h3240103466/HPC101/src/lab5/calculate_model_size.py", line 12, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'

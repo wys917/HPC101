@@ -65,6 +65,14 @@ def _expand_mask(mask: torch.Tensor, dtype: torch.dtype, tgt_len: Optional[int] 
 class Qwen3Model(nn.Module):
     """
     Qwen3 基础模型
+    
+    这是完整的Qwen3 Transformer模型，包含：
+    1. Token嵌入层：将token ID转换为向量表示
+    2. 多个Decoder Layer：核心的注意力和FFN层堆叠
+    3. 最终的RMSNorm：输出前的归一化
+    
+    这个模型只负责将token序列转换为隐藏状态，
+    不包含语言模型头（lm_head），需要Qwen3ForCausalLM包装。
     """
 
     def __init__(
@@ -83,24 +91,30 @@ class Qwen3Model(nn.Module):
         if dtype is None:
             dtype = torch.float32
 
-        # Token 嵌入
+        # ============ 模型组件初始化 ============
+        
+        # Token嵌入层：将token ID转换为dense向量表示
+        # 这是模型的第一层，负责将离散的token转换为连续的向量空间
         self.embed_tokens = nn.Embedding(
-            config.vocab_size,
-            config.hidden_size,
-            self.padding_idx,
+            config.vocab_size,    # 词汇表大小（约15万）
+            config.hidden_size,   # 嵌入维度（4096）
+            self.padding_idx,     # padding token的索引
             device=device,
             dtype=dtype,
         )
 
-        # Transformer 层
+        # Transformer Decoder层堆叠
+        # 这是模型的核心部分，包含多个相同的Decoder Layer
+        # 每一层都包含Self-Attention和FFN子模块
         self.layers = nn.ModuleList(
             [
                 Qwen3DecoderLayer(config, layer_idx, device=device, dtype=dtype)
-                for layer_idx in range(config.num_hidden_layers)
+                for layer_idx in range(config.num_hidden_layers)  # 36层
             ]
         )
 
         # 最终层归一化
+        # 在输出前对隐藏状态进行最后一次归一化
         self.norm = RMSNorm(
             config.hidden_size, eps=config.rms_norm_eps, device=device, dtype=dtype
         )
@@ -284,17 +298,39 @@ class Qwen3Model(nn.Module):
         input_ids: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None,
     ) -> Union[Tuple, torch.Tensor]:
+        """
+        Qwen3Model的前向传播
+        
+        这个方法实现了完整的Transformer前向传播过程：
+        1. Token嵌入：将token ID转换为向量
+        2. 多层Decoder：通过36层Decoder Layer处理
+        3. 最终归一化：输出前的RMSNorm
+        
+        Args:
+            input_ids: 输入的token序列 [batch_size, seq_length]
+            attention_mask: 注意力掩码 [batch_size, seq_length]
+        
+        Returns:
+            hidden_states: 最终的隐藏状态 [batch_size, seq_length, hidden_size]
+        """
 
-        # 获取输入形状
+        # ============ 输入处理 ============
+        
+        # 获取输入的形状信息
         batch_size, seq_length = input_ids.shape
 
-        seq_length_with_past = seq_length
+        seq_length_with_past = seq_length  # 当前实现不支持KV cache
         past_key_values_length = 0
 
-        # 嵌入
+        # ============ Token嵌入 ============
+        
+        # 将token ID转换为dense向量表示
+        # input_ids: [batch_size, seq_length] -> inputs_embeds: [batch_size, seq_length, hidden_size]
         inputs_embeds = self.embed_tokens(input_ids)
 
-        # 注意力掩码
+        # ============ 注意力掩码处理 ============
+        
+        # 如果没有提供注意力掩码，创建默认的全1掩码（所有位置都可以关注）
         if attention_mask is None:
             attention_mask = torch.ones(
                 (batch_size, seq_length_with_past),
@@ -302,6 +338,8 @@ class Qwen3Model(nn.Module):
                 device=inputs_embeds.device,
             )
 
+        # 准备decoder的注意力掩码，包含因果掩码（下三角）
+        # 这确保了每个位置只能关注到之前的位置，实现自回归的特性
         attention_mask = self._prepare_decoder_attention_mask(
             attention_mask,
             (batch_size, seq_length),
@@ -309,11 +347,19 @@ class Qwen3Model(nn.Module):
             past_key_values_length,
         )
 
-        hidden_states = inputs_embeds
-        # 通过每个decoder层
+        # ============ Transformer层的前向传播 ============
+        
+        hidden_states = inputs_embeds  # 初始隐藏状态就是嵌入向量
+        
+        # 依次通过每个Decoder Layer
+        # 每一层都会对隐藏状态进行Self-Attention和FFN变换
         for idx, decoder_layer in enumerate(self.layers):
             hidden_states = decoder_layer(hidden_states, attention_mask=attention_mask)
+            # hidden_states始终保持形状: [batch_size, seq_length, hidden_size]
 
+        # ============ 最终处理 ============
+        
+        # 对最终的隐藏状态进行归一化
         hidden_states = self.norm(hidden_states)
 
         return hidden_states
@@ -349,6 +395,18 @@ class Qwen3Model(nn.Module):
 class Qwen3ForCausalLM(nn.Module):
     """
     用于因果语言建模的Qwen3模型
+    
+    这是完整的语言模型，在Qwen3Model的基础上添加了语言模型头（lm_head）。
+    lm_head负责将隐藏状态转换为词汇表上的概率分布，用于预测下一个token。
+    
+    结构：
+    1. Qwen3Model：基础的Transformer模型，输出隐藏状态
+    2. lm_head：线性层，将隐藏状态映射到词汇表大小的logits
+    
+    这个模型支持：
+    - 文本生成（自回归）
+    - 语言建模训练
+    - 因果推理（只能看到前面的token）
     """
 
     def __init__(

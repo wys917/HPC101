@@ -1,0 +1,13 @@
+[Mon Aug 25 22:01:56 2025] --- Script started ---
+[Mon Aug 25 22:01:56 2025] Importing torch...
+[Mon Aug 25 22:02:06 2025] torch imported successfully.
+[Mon Aug 25 22:02:06 2025] Importing Qwen3ForCausalLM...
+[Mon Aug 25 22:02:06 2025] Qwen3ForCausalLM imported successfully.
+[Mon Aug 25 22:02:06 2025] INFO: Code is running on node: v41
+==================================================
+[Mon Aug 25 22:02:06 2025] ACTION: About to load model to GPU. This may take a while...
+[Mon Aug 25 22:02:11 2025] SUCCESS: Model loaded to GPU!
+ACTION: Please SSH to v41 and run 'watch -n 1 nvidia-smi'
+
+[Mon Aug 25 22:07:11 2025] INFO: Sleep finished. Exiting.
+GPU程序执行完成！

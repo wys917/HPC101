@@ -1,0 +1,516 @@
+🚀 开始Qwen3模型参数量和显存分析
+作业ID: 47454
+节点: v20
+时间: Mon Aug 25 10:31:24 PM CST 2025
+================================
+GPU信息:
+Mon Aug 25 22:31:24 2025       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 575.57.08              Driver Version: 575.57.08      CUDA Version: 12.9     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla V100-SXM2-32GB           On  |   00000000:19:00.0 Off |                    0 |
+| N/A   39C    P0             43W /  300W |       0MiB /  32768MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+================================
+运行参数量和显存分析...
+🚀 Qwen3模型参数量和显存分析
+================================================================================
+============================================================
+🧮 理论参数量计算
+============================================================
+模型配置:
+  vocab_size: 152,064
+  hidden_size: 4,096
+  intermediate_size: 11,008
+  num_hidden_layers: 32
+  num_attention_heads: 32
+  num_key_value_heads: 32
+
+1. Word Embedding层:
+   vocab_size × hidden_size = 152,064 × 4,096
+   参数量: 622,854,144 (622.85M)
+
+2. 单个Decoder Layer参数量:
+   Self-Attention:
+     QKV投影: 4,096 × 12,288 = 50,331,648
+     输出投影: 4,096 × 4,096 = 16,777,216
+     Q/K归一化: 2 × 4,096 = 8,192
+     小计: 67,117,056 (67.12M)
+
+   MLP (SwiGLU):
+     Gate投影: 4,096 × 11,008 = 45,088,768
+     Up投影: 4,096 × 11,008 = 45,088,768
+     Down投影: 11,008 × 4,096 = 45,088,768
+     小计: 135,266,304 (135.27M)
+
+   LayerNorm:
+     2层 × 4,096 = 8,192
+
+   单层总参数: 202,391,552 (202.39M)
+
+3. 所有32层Decoder参数:
+   202,391,552 × 32 = 6,476,529,664 (6.48B)
+
+4. Language Model Head:
+   hidden_size × vocab_size = 4,096 × 152,064
+   参数量: 622,854,144 (622.85M)
+
+5. Final LayerNorm:
+   参数量: 4,096
+
+============================================================
+📊 参数量汇总:
+============================================================
+Word Embedding:     622,854,144 (622.85M)
+Decoder Layers:     6,476,529,664 (6.48B)
+LM Head:           622,854,144 (622.85M)
+Final LayerNorm:   4,096
+------------------------------------------------------------
+总参数量:          7,722,242,048 (7.72B)
+============================================================
+
+============================================================
+💾 理论显存占用计算
+============================================================
+数据类型: bfloat16 (每参数2字节)
+模型参数显存: 7,722,242,048 × 2 = 15,444,484,096 bytes
+模型参数显存: 14.38 GB
+
+推理时额外显存开销估算:
+  激活值显存 (估算): 0.02 GB
+  注意力矩阵显存: 0.00 GB
+
+----------------------------------------
+推理时总显存估算: 15.41 GB
+============================================================
+
+============================================================
+🔬 实际模型测试
+============================================================
+GPU设备: Tesla V100-SXM2-32GB
+GPU总显存: 31.73 GB
+初始显存占用: 0.00 GB
+
+创建模型...
+实际总参数量: 7,721,988,096 (7.72B)
+可训练参数量: 7,721,988,096 (7.72B)
+
+详细参数分解:
+  model.embed_tokens.weight: 622,854,144 (622.85M)
+  model.layers.0.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.0.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.0.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.0.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.0.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.0.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.0.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.1.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.1.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.1.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.1.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.1.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.1.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.1.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.2.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.2.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.2.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.2.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.2.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.2.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.2.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.3.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.3.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.3.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.3.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.3.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.3.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.3.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.4.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.4.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.4.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.4.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.4.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.4.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.4.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.5.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.5.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.5.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.5.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.5.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.5.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.5.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.6.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.6.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.6.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.6.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.6.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.6.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.6.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.7.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.7.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.7.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.7.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.7.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.7.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.7.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.8.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.8.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.8.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.8.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.8.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.8.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.8.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.9.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.9.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.9.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.9.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.9.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.9.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.9.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.10.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.10.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.10.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.10.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.10.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.10.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.10.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.11.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.11.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.11.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.11.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.11.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.11.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.11.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.12.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.12.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.12.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.12.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.12.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.12.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.12.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.13.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.13.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.13.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.13.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.13.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.13.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.13.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.14.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.14.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.14.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.14.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.14.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.14.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.14.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.15.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.15.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.15.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.15.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.15.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.15.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.15.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.16.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.16.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.16.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.16.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.16.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.16.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.16.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.17.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.17.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.17.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.17.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.17.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.17.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.17.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.18.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.18.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.18.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.18.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.18.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.18.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.18.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.19.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.19.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.19.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.19.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.19.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.19.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.19.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.20.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.20.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.20.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.20.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.20.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.20.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.20.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.21.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.21.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.21.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.21.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.21.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.21.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.21.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.22.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.22.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.22.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.22.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.22.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.22.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.22.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.23.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.23.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.23.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.23.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.23.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.23.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.23.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.24.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.24.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.24.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.24.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.24.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.24.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.24.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.25.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.25.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.25.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.25.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.25.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.25.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.25.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.26.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.26.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.26.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.26.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.26.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.26.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.26.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.27.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.27.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.27.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.27.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.27.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.27.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.27.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.28.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.28.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.28.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.28.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.28.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.28.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.28.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.29.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.29.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.29.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.29.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.29.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.29.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.29.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.30.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.30.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.30.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.30.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.30.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.30.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.30.mlp.down_proj.weight: 45,088,768 (45.09M)
+  model.layers.31.self_attn.q_proj.weight: 16,777,216 (16.78M)
+  model.layers.31.self_attn.k_proj.weight: 16,777,216 (16.78M)
+  model.layers.31.self_attn.v_proj.weight: 16,777,216 (16.78M)
+  model.layers.31.self_attn.o_proj.weight: 16,777,216 (16.78M)
+  model.layers.31.mlp.gate_proj.weight: 45,088,768 (45.09M)
+  model.layers.31.mlp.up_proj.weight: 45,088,768 (45.09M)
+  model.layers.31.mlp.down_proj.weight: 45,088,768 (45.09M)
+  lm_head.weight: 622,854,144 (622.85M)
+
+移动模型到GPU...
+模型加载后显存: 14.88 GB
+模型实际占用显存: 14.88 GB
+
+进行推理测试...
+推理时总显存: 14.95 GB
+推理额外开销: 0.06 GB
+
+============================================================
+📊 理论vs实际对比分析
+============================================================
+参数量对比:
+  理论值: 7,722,242,048 (7.72B)
+  实际值: 7,721,988,096 (7.72B)
+  差异:   253,952 (0.00%)
+  ✅ 参数量基本一致
+
+模型显存对比:
+  理论值: 14.38 GB
+  实际值: 14.88 GB
+  差异:   0.50 GB (3.47%)
+  ✅ 显存占用基本一致
+
+推理显存分析:
+  理论推理显存: 15.41 GB
+  实际推理显存: 14.95 GB
+  差异: 0.46 GB
+
+============================================================
+🔍 差异原因分析
+============================================================
+可能的差异原因:
+1. 内存对齐: GPU要求内存按特定边界对齐，可能导致额外开销
+2. PyTorch开销: 框架本身的元数据和管理开销
+3. CUDA上下文: GPU驱动和CUDA运行时的基础开销
+4. 缓存开销: PyTorch的内存池和缓存机制
+5. 精度差异: 理论计算可能遗漏某些小的参数组件
+6. 动态内存: 推理过程中临时张量的内存分配
+
+✅ 分析完成!
+================================
+分析完成，时间: Mon Aug 25 10:32:47 PM CST 2025
+开始分析Qwen3模型参数量和显存占用...
+时间: Mon Aug 25 10:32:47 PM CST 2025
+节点: v20
+GPU: 0
+Python环境信息:
+Python 3.11.2
+PyTorch版本: 2.6.0+cu124
+CUDA可用: True
+
+开始显存基线测量...
+Mon Aug 25 22:32:53 2025       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 575.57.08              Driver Version: 575.57.08      CUDA Version: 12.9     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla V100-SXM2-32GB           On  |   00000000:19:00.0 Off |                    0 |
+| N/A   41C    P0             44W /  300W |       0MiB /  32768MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+运行模型分析脚本...
+Qwen3-8B 模型分析工具
+分析包括：参数量计算、显存占用估算、实际使用情况对比
+============================================================
+🧮 Qwen3-8B 模型理论参数量计算
+============================================================
+模型配置:
+  词汇表大小: 152,064
+  隐藏层维度: 4,096
+  FFN中间维度: 11,008
+  层数: 32
+  注意力头数: 32
+  KV头数: 32
+
+📝 1. Embedding层参数计算:
+  Word Embedding: 152,064 × 4,096 = 622,854,144
+
+🏗️ 2. 每个Decoder Layer参数计算:
+  2.1 Self-Attention:
+    QKV投影: 4,096 × 12,288 = 50,331,648
+    输出投影: 4,096 × 4,096 = 16,777,216
+    Q/K归一化: 2 × 32 × 128 = 8,192
+    Self-Attention总计: 67,117,056
+  2.2 MLP (SwiGLU):
+    Gate投影: 4,096 × 11,008 = 45,088,768
+    Up投影: 4,096 × 11,008 = 45,088,768
+    Down投影: 11,008 × 4,096 = 45,088,768
+    MLP总计: 135,266,304
+  2.3 LayerNorm:
+    LayerNorm × 2: 2 × 4,096 = 8,192
+  单层总计: 202,391,552
+
+🔢 3. 所有层参数计算:
+  32层总计: 32 × 202,391,552 = 6,476,529,664
+
+📤 4. 最终输出层参数:
+  Final LayerNorm: 4,096
+  LM Head: 4,096 × 152,064 = 622,854,144
+  输出层总计: 622,858,240
+
+🎯 5. 总参数量:
+  Embedding: 622,854,144
+  Decoder Layers: 6,476,529,664
+  输出层: 622,858,240
+  总计: 7,722,242,048
+  约 7.72B 参数
+
+============================================================
+💾 理论显存占用计算 (bfloat16)
+============================================================
+模型参数显存:
+  参数量: 7,722,242,048
+  数据类型: bfloat16 (2 bytes/param)
+  参数显存: 7,722,242,048 × 2 = 15,444,484,096 bytes
+  参数显存: 14.38 GB
+
+激活显存估算 (batch=1, seq_len=1024):
+  Hidden States: 0.25 GB
+  Attention Weights: 2.00 GB
+  KV Cache: 0.50 GB
+  激活总计: 2.75 GB
+
+总显存需求:
+  模型参数: 14.38 GB
+  激活内存: 2.75 GB
+  理论总计: 17.13 GB
+
+============================================================
+🔍 实际模型参数量验证
+============================================================
+实际模型参数统计:
+  总参数量: 7,721,988,096
+  可训练参数: 7,721,988,096
+  约 7.72B 参数
+
+按模块参数统计:
+  model: 7,099,133,952 (91.9%)
+  lm_head: 622,854,144 (8.1%)
+
+============================================================
+📊 实际显存占用查询
+============================================================
+GPU 0: Tesla V100-SXM2-32GB
+  总显存: 32,768 MB (32.00 GB)
+  已用显存: 0 MB (0.00 GB)
+  可用显存: 32,495 MB (31.73 GB)
+  使用率: 0.0%
+
+PyTorch显存信息:
+  GPU 0:
+    总显存: 31.73 GB
+    已分配: 0.00 GB
+    已缓存: 0.00 GB
+
+============================================================
+📈 对比分析
+============================================================
+参数量对比:
+  理论计算: 7,722,242,048
+  实际统计: 7,721,988,096
+  差异: 253,952 (0.00%)
+  ✅ 理论计算与实际基本一致
+
+分析完成!
+结束时间: Mon Aug 25 10:33:59 PM CST 2025

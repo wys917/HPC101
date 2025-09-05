@@ -1,0 +1,26 @@
+
+输入提示: 用Python写一个函数，实现快速排序算法<think>
+==================================================
+输入 token 数量: 11
+
+生成完成!
+生成时间: 44.32 秒
+生成 token 数量: 150
+生成速度: 3.38 tokens/秒
+==================================================
+完整输出: 用Python写一个函数，实现快速排序算法<think>
+当然可以！下面是一个用Python实现的快速排序算法的函数：
+
+```python
+def quicksort(arr):
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quicksort(left) + middle + quicksort(right)
+```
+
+这个函数使用了递归的方式实现快速排序。它的基本思想是选择一个基准元素（pivot），然后将数组中的元素分为三部分：小于基准的元素、等于基准的元素和大于基准的元素
+GPU程序执行完成！

@@ -1,0 +1,4 @@
+  File "/home/hpc101/h3240103466/HPC101/src/lab5/main.py", line 9
+    total_params = sum(p.numel() for p in model.parameters())
+IndentationError: unexpected indent
+GPU程序执行完成！

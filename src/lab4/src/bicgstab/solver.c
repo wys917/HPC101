@@ -7,15 +7,14 @@
 
 void gemv(double* __restrict y, double* __restrict A, double* __restrict x, int N) {
     // y = A * x
-    // 正确实现：仅对数据独立的外层循环进行粗粒度并行
+  
     #pragma omp parallel for
     for (int i = 0; i < N; i++) {
-        // 将累加器'sum'定义在循环内部，使其成为线程私有变量
         double sum = 0.0; 
         for (int j = 0; j < N; j++) {
             sum += A[i * N + j] * x[j];
         }
-        // 每个线程写入y数组的不同位置，不存在写冲突
+
         y[i] = sum;
     }
 }
@@ -75,23 +74,9 @@ int bicgstab(int N, double* A, double* b, double* x, int max_iter, double tol) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    // ================== 你要加的代码在这里 ==================
-    // 步骤1: 广播问题规模 N
-    // 在调用这个函数时：
-    // - 对于 rank 0, N 是从 main 函数传来的正确值。
-    // - 对于其他 rank, N 是一个垃圾值。
-    // MPI_Bcast 会把 rank 0 的 N 的值，覆盖掉所有其他进程里的 N 的值。
+  
     MPI_Bcast(&N, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    // =======================================================
-
-    // 在这行代码执行完毕后，村子里的所有进程，从0到size-1，
-    // 它们的变量 N 的值就都变成一样的、正确的值了。
-
-    // 验证一下 (这是个好习惯，以后可以删掉):
-    if (rank == 1) { // 随便找个非0进程打印一下
-        printf("我是进程1, 我收到的 N 是: %d\n", N);
-    }
-
+ 
     
     // Take M_inv as the preconditioner
     // Note that we only use K2_inv (in wikipedia)

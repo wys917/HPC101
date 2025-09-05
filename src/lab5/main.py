@@ -9,8 +9,8 @@ from utils.utils import generate_text
 
 def main():
     MODEL_PATH = "/ocean/model/Qwen3-8B"
-    PROMPT = "为什么西瓜比苹果甜？<think>"  # 示例提示词，添加<think>标记以触发思考模式
-    max_length = 200
+    PROMPT = "为什么西瓜比苹果甜</think>"  # 示例提示词，添加<think>标记以触发思考模式
+    max_length = 150
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -29,7 +29,7 @@ def main():
         tokenizer=tokenizer,
         prompt=PROMPT,
         max_length=max_length,
-        temperature=0,
+        temperature=0.2,
         device=device,
     )
 
